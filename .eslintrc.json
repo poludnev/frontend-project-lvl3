@@ -9,6 +9,7 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
+  "ignorePatterns": ["/dist/*"],
   "rules": {
     "no-console": 0,
     "import/extensions": 0,

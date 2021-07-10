@@ -2,7 +2,7 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "3d frontend js project",
-  "main": "init.js",
+  "private": "true",
   "type": "module",
   "jest": {
     "testEnvironment": "node",
@@ -10,7 +10,8 @@
     "testRunner": "jest-circus/runner"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -24,15 +25,21 @@
   "homepage": "https://github.com/poludnev/frontend-project-lvl3#readme",
   "devDependencies": {
     "@jest/globals": "^27.0.6",
+    "css-loader": "^5.2.6",
     "eslint": "^7.30.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-jest": "^24.3.6",
+    "html-webpack-plugin": "^5.3.2",
     "jest": "^27.0.6",
     "jest-circus": "^27.0.6",
-    "jest-cli": "^27.0.6"
+    "jest-cli": "^27.0.6",
+    "style-loader": "^3.0.0",
+    "webpack": "^5.44.0",
+    "webpack-cli": "^4.7.2"
   },
   "dependencies": {
+    "bootstrap": "^5.0.2",
     "lodash": "^4.17.21"
   }
 }
