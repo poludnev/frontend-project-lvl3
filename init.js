@@ -1,7 +1,7 @@
-// import utils from './utils.js';
+import utils from './utils.js';
 
-// const x = utils(1, 2);
+const x = utils(1, 2);
 
-// console.log(x);
+console.log(x);
 
-// console.log('hello world');
+console.log('hello world');

@@ -1,5 +1,6 @@
 import { expect, test } from '@jest/globals';
+import sum from '../utils.js';
 
-test('test run', async () => {
-  expect(2 + 3).toEqual(5);
+test('test run', () => {
+  expect(sum(2, 3)).toEqual(5);
 });
