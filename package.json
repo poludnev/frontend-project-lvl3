@@ -39,7 +39,10 @@
     "webpack-cli": "^4.7.2"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "bootstrap": "^5.0.2",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "on-change": "^3.0.2",
+    "yup": "^0.32.9"
   }
 }
