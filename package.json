@@ -2,6 +2,7 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "3d frontend js project",
+  "main": "src/index.js",
   "private": "true",
   "type": "module",
   "jest": {
