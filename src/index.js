@@ -17,7 +17,8 @@ const isUrlExists = (url, state) => {
   return false;
 };
 
-const runApp = async () => {
+// const runApp = async () => {
+export default async () => {
   console.log('app started');
 
   const i18nInstance = i18next.createInstance();
@@ -235,4 +236,4 @@ const runApp = async () => {
   });
 };
 
-runApp();
+// runApp();
