@@ -154,7 +154,9 @@ const runApp = async () => {
         console.log('schema validation', url);
 
         return axios.get(
-          `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(url)}`,
+          `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(
+            url,
+          )}`,
         );
         // .then((data) => {
         //   console.log('aftera axios2222', data);
