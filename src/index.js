@@ -9,16 +9,6 @@ import ru from './locales/ru.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 
-// const httpRequest = (url) =>
-//   axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(url)}`);
-
-// const isValidRespond = (response) => {
-//   if (response.status === 200) return true;
-//   return false;
-// };
-
-// const isValidInput = (inputValue) => schema.isValid({ url: inputValue });
-
 const isUrlExists = (url, state) => {
   // console.log('is url exist, state:', state.feeds);
   const x = _.find(state.feeds.data, { link: url });
@@ -53,6 +43,7 @@ const runApp = async () => {
   const schema = yup.object().shape({
     url: yup.string().url(),
     rss: yup.string().matches(/<rss /),
+    status: yup.number().min(200).max(200),
   });
 
   const state = {
@@ -81,27 +72,12 @@ const runApp = async () => {
     },
   };
 
-  const watchedState = onChange(state, (path, current, previous) => {
+  const watchedState = onChange(state, (path, current) => {
     console.log('watchedState changes', path);
     if (path === 'formState') {
-      console.log('formState changed', `path: ${path}, current: ${current}, previous: ${previous}`);
-
-      // console.log('onchange target', onChange.target(watchedState.errors));
-      // console.log('onchange target', onChange.target(watchedState.errors[0].message));
-
-      //   console.log('watchedState invale changes', watchedState.errors);
-      //   console.log(watchedState.errors);
-      //   const errors = [...watchedState.errors];
-      //   console.log('errors', errors, this.errors);
-      //   // console.log;
-      // viewHandlers[current](onChange.target(watchedState.errors[0].message));
+      // console.log('formState changed', `path: ${path}, current:
+      // ${ current }, previous: ${ previous }`);
       viewHandlers[current](onChange.target(watchedState));
-
-      // if (path === 'errors') {
-      //   console.log('path = errors', [...current]);
-      //   const err = [...current];
-      //   console.log('err', err[0]);
-      // }
     }
     if (path === 'feeds') {
       // console.log('feeds changed');
@@ -110,6 +86,15 @@ const runApp = async () => {
     if (path === 'posts') {
       // console.log('posts changed');
       viewHandlers.posts(current);
+      const a = document.querySelectorAll('.posts a');
+      [...a].forEach((el) => el.addEventListener('click', (e) => {
+        e.target.classList.remove('fw-bold');
+        e.target.classList.add('fw-normal', 'link-secondary');
+        console.log('a target', e.target, e.target.dataset.id);
+        const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
+        post.visited = true;
+        console.log('pist find', post);
+      }));
     }
   });
 
@@ -131,18 +116,58 @@ const runApp = async () => {
   footerLink.innerHTML = i18nInstance.t('footer.link');
   const footerText = footerLink.parentElement;
   footerText.childNodes[0].nodeValue = i18nInstance.t('footer.text');
-  // console.log(document.querySelector('footer'));
-  // console.log(footerText.childNodes);
+
+  const feedsUpdate = () => {
+    const feeds = onChange.target(watchedState.feeds.data);
+    if (feeds.length > 0) {
+      console.log(feeds);
+      feeds.forEach(({ link, id }) => {
+        console.log('link and id', id, link);
+
+        axios
+          .get(
+            `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(
+              link,
+            )}`,
+          )
+          .then((response) => {
+            console.log('repeat response', response, response.status);
+            return schema.validate({ status: response.status, response });
+          })
+          .then(({ response }) => {
+            console.log('response status validated', response);
+            const postByFeedId = onChange
+              .target(watchedState.posts.data)
+              .filter((elem) => elem.feedId === id);
+            console.log(postByFeedId);
+            const parsedRss = rssParser(response.data);
+            const { posts } = parsedRss;
+
+            posts.forEach((post) => {
+              console.log('checking the posts', post);
+              console.log(_.find(postByFeedId, { title: post.title }));
+              if (!_.find(postByFeedId, { title: post.title })) {
+                watchedState.posts.addPost({
+                  title: post.title,
+                  link: post.link,
+                  description: post.description,
+                  feedId: id,
+                });
+              }
+            });
+          });
+      });
+    }
+
+    return setTimeout(feedsUpdate, 5000);
+  };
 
   const form = document.querySelector('form');
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const inputValue = event.target.url.value;
-    // console.log('inputValue:', inputValue);
-    // console.log('yup test', await schema.isValid({ url: inputValue }));
 
     if (isUrlExists(inputValue, watchedState)) {
-      // case4: existing URL
       watchedState.feedbackMessage = i18nInstance.t('feedback.urlExists');
       watchedState.formState = 'urlExists';
       return;
@@ -158,35 +183,15 @@ const runApp = async () => {
             url,
           )}`,
         );
-        // .then((data) => {
-        //   console.log('aftera axios2222', data);
-        // });
       })
-
       .then((httpResponse) => {
         console.log('aftera axios', httpResponse);
-        return (
-          schema
-            // .validate({ rss: httpResponse.data.status['content_type'] })
-            .validate({ rss: httpResponse.data.contents, httpResponse })
-        );
-        // .then((data) => console.log('rss validaye', data))
-        // .catch((e) => {
-        // console.log('rss validation error', e);
-        // watchedState.errors.push(e);
-        // watchedState.formState = 'invalidInput';
-        // });
-
-        // const parsedRss = rssParser(httpResponse.data);
-        // console.log('parsed rss', parsedRss);
+        return schema.validate({ rss: httpResponse.data.contents, httpResponse });
       })
       .then(({ httpResponse }) => {
         console.log('rss valid', httpResponse);
         const parsedRss = rssParser(httpResponse.data);
         console.log('parsed rss', parsedRss);
-        // case5: success
-        // console.log('resonse data', response.data);
-        // watchedState.listData.push(response.data);
 
         const { feed, posts } = parsedRss;
 
@@ -202,91 +207,16 @@ const runApp = async () => {
         watchedState.errors = [];
         watchedState.feedbackMessage = i18nInstance.t('feedback.success');
         watchedState.formState = 'success';
+        // x1();
       })
       .catch((e) => {
-        // console.log('schema validation error', e);
-        // console.log('schema validation error', e.name);
-        // console.log('schema validation error', e.errors);
-
         watchedState.errors.push(e);
-        // watchedState.errors.push(e);
         watchedState.feedbackMessage = e.errors[0].value;
         watchedState.formState = e.errors[0].name;
       });
-
-    // isValidInput(inputValue).then((data) => {
-    //   console.log('promise isValidInput', data);
-    //   // if (!data) {
-    //   //   watchedState.formState = 'invalidInput';
-    //   //   return;
-    //   // }
-
-    //   watchedState.formState = 'requesting';
-    //   httpRequest(inputValue).then((response) => {
-    //     console.log('http response', response);
-    //     if (isValidRespond(response)) {
-    //       // case5: success
-    //       watchedState.formState = 'success';
-    //       // console.log('resonse data', response.data);
-    //       watchedState.listData.push(response.data);
-
-    //       const { feed, posts } = rssParser(response.data);
-
-    //       watchedState.feeds.addFeed(feed);
-
-    // posts.forEach(({ title, link, description }) =>
-    //   watchedState.posts.addPost({
-    //     title,
-    //     link,
-    //     description,
-    //     feedId: watchedState.feeds.lastsIndex - 1,
-    //   }),
-    // );
-    //     }
-    //   });
-    // });
-
-    // if (await isValidInput(inputValue)) {
-    //   // console.log('input string is valid url');
-
-    //   // if (isUrlExists(inputValue, watchedState)) {
-    //   //   // case4: existing URL
-    //   //   watchedState.formState = 'urlExists';
-    //   //   // console.log('case4 url exists, watchedState:', watchedState);
-    //   //   return;
-    //   // }
-
-    //   // case2: valid url, reqeust
-    //   watchedState.formState = 'requesting';
-    //   // console.log('case2 request, watchedState:', watchedState);
-    //   const response = await httpRequest(inputValue);
-
-    //   if (isValidRespond(response)) {
-    //     // case5: success
-    //     watchedState.formState = 'success';
-    //     // console.log('resonse data', response.data);
-    //     watchedState.listData.push(response.data);
-
-    //     const { feed, posts } = rssParser(response.data);
-
-    //     watchedState.feeds.addFeed(feed);
-
-    //     posts.forEach(({ title, link, description }) =>
-    //       watchedState.posts.addPost({
-    //         title,
-    //         link,
-    //         description,
-    //         feedId: watchedState.feeds.lastsIndex - 1,
-    //       }),
-    //     );
-
-    //     return;
-    //   }
-    //   console.log('checking response: not succeed');
-    // }
-    // case3: invalid input
-    // watchedState.formState = 'invalidInput';
   });
+  feedsUpdate();
+
   const modal = document.querySelector('.modal');
   modal.addEventListener('show.bs.modal', (e) => {
     const button = e.relatedTarget;

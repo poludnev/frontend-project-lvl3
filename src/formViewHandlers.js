@@ -112,14 +112,14 @@ const makePostsLi = (title, description, link, id, visited, buttonsName) => {
   }
 
   a.innerHTML = `${title}`;
-  a.addEventListener('click', (e) => {
-    e.target.classList.remove('fw-bold');
-    e.target.classList.add('fw-normal', 'link-secondary');
-    console.log('a target', e.target, e.target.dataset.id);
-    const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
-    post.visited = true;
-    console.log('pist find', post);
-  });
+  // a.addEventListener('click', (e) => {
+  //   e.target.classList.remove('fw-bold');
+  //   e.target.classList.add('fw-normal', 'link-secondary');
+  //   console.log('a target', e.target, e.target.dataset.id);
+  //   const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
+  //   post.visited = true;
+  //   console.log('pist find', post);
+  // });
   const button = document.createElement('button');
   button.type = 'button';
   button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
