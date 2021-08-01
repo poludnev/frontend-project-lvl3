@@ -1,15 +1,15 @@
-const inValidHandler = () => {
+const inValidHandler = (state) => {
   const input = document.querySelector('input');
   const button = document.querySelector('button');
   const feedback = document.querySelector('.feedback');
   input.classList.add('is-invalid');
-  feedback.innerHTML = 'Ссылка должна быть валидным URL';
+  feedback.innerHTML = `${state.feedbackMessage}`;
   feedback.classList.remove('text-success');
   feedback.classList.add('text-danger');
   input.disabled = false;
   button.disabled = false;
 };
-const validHandler = () => {
+const validHandler = (state) => {
   const input = document.querySelector('input');
   const button = document.querySelector('button');
   const feedback = document.querySelector('.feedback');
@@ -17,7 +17,9 @@ const validHandler = () => {
   input.disabled = false;
   button.disabled = false;
   input.value = '';
-  feedback.innerHTML = 'RSS успешно загружен';
+  // feedback.innerHTML = 'RSS успешно загружен';
+  // console.log('validHandler state', state);
+  feedback.innerHTML = `${state.feedbackMessage}`;
   feedback.classList.add('text-success');
   feedback.classList.remove('text-danger');
 };
@@ -32,11 +34,11 @@ const requestingHAndler = () => {
   feedback.innerHTML = '';
 };
 
-const urlExistsHandler = () => {
+const urlExistsHandler = (state) => {
   const input = document.querySelector('input');
   const feedback = document.querySelector('.feedback');
   input.classList.add('is-invalid');
-  feedback.innerHTML = 'RSS уже существует';
+  feedback.innerHTML = `${state.feedbackMessage}`;
   feedback.classList.remove('text-success');
   feedback.classList.add('text-danger');
 };
@@ -74,7 +76,7 @@ const renderFeeds = (state) => {
   const feeds = document.querySelector('.feeds');
   feeds.innerHTML = '';
   if (state.data.length === 0) return;
-  feeds.appendChild(makeCard('Фиды'));
+  feeds.appendChild(makeCard(state.title));
   const feedsUl = makeUl();
   const feedsData = state.data;
 
@@ -88,7 +90,7 @@ const renderFeeds = (state) => {
   feeds.appendChild(feedsUl);
 };
 
-const makePostsLi = (title, description, link, id, visited) => {
+const makePostsLi = (title, description, link, id, visited, buttonsName) => {
   const li = document.createElement('li');
   li.classList.add(
     'list-group-item',
@@ -124,7 +126,7 @@ const makePostsLi = (title, description, link, id, visited) => {
   button.dataset.id = id;
   button.dataset.bsToggle = 'modal';
   button.dataset.bsTarget = '#exampleModal';
-  button.innerHTML = 'Просмотр';
+  button.innerHTML = buttonsName;
   li.appendChild(a);
   li.appendChild(button);
   return li;
@@ -134,7 +136,7 @@ const renderPosts = (state) => {
   const posts = document.querySelector('.posts');
   posts.innerHTML = '';
   if (state.data.length === 0) return;
-  posts.appendChild(makeCard('Посты'));
+  posts.appendChild(makeCard(state.title));
   const postsUl = makeUl();
   const postsData = state.data;
   postsData
@@ -142,43 +144,50 @@ const renderPosts = (state) => {
     .forEach(({
       title, description, link, id, visited,
     }) => {
-      postsUl.appendChild(makePostsLi(title, description, link, id, visited));
+      postsUl.appendChild(makePostsLi(title, description, link, id, visited, state.buttonsName));
     });
   posts.appendChild(postsUl);
 };
 
 const viewHandlers = {
   requesting() {
-    console.log('requesting handler started');
+    // console.log('requesting handler started');
     requestingHAndler();
     return true;
   },
-  success() {
-    console.log('success handler started');
-    validHandler();
+  success(state) {
+    // console.log('success handler started');
+    validHandler(state);
     return true;
   },
-  urlExists() {
-    console.log('urlExists handler started');
-    urlExistsHandler();
+  urlExists(state) {
+    // console.log('urlExists handler started');
+    urlExistsHandler(state);
     return true;
   },
-  invalidInput() {
-    console.log('invalidInput handler started');
-    inValidHandler();
+  invalidURL(message) {
+    // console.log('invalidInput handler started');
+    // console.log('invalid state message', message, errors);
+    inValidHandler(message);
+    return true;
+  },
+  invalidRSS(message) {
+    // console.log('invalidInput handler started');
+    // console.log('invalid state message', message, errors);
+    inValidHandler(message);
     return true;
   },
   inputting() {
-    console.log('inputting handler started');
+    // console.log('inputting handler started');
     inputtingHandler();
     return true;
   },
   feeds(state) {
-    console.log('feeds handler started');
+    // console.log('feeds handler started');
     renderFeeds(state);
   },
   posts(state) {
-    console.log('posts handler started');
+    // console.log('posts handler started');
     renderPosts(state);
   },
 };
