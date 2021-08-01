@@ -122,8 +122,6 @@ const runApp = async () => {
     if (feeds.length > 0) {
       // console.log(feeds);
       feeds.forEach(({ link, id }) => {
-        // console.log('link and id', id, link);
-
         axios
           .get(
             `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(
