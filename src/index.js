@@ -120,9 +120,9 @@ const runApp = async () => {
   const feedsUpdate = () => {
     const feeds = onChange.target(watchedState.feeds.data);
     if (feeds.length > 0) {
-      console.log(feeds);
+      // console.log(feeds);
       feeds.forEach(({ link, id }) => {
-        console.log('link and id', id, link);
+        // console.log('link and id', id, link);
 
         axios
           .get(
@@ -130,22 +130,19 @@ const runApp = async () => {
               link,
             )}`,
           )
-          .then((response) => {
-            console.log('repeat response', response, response.status);
-            return schema.validate({ status: response.status, response });
-          })
+          .then((response) => schema.validate({ status: response.status, response }))
           .then(({ response }) => {
-            console.log('response status validated', response);
+            // console.log('response status validated', response);
             const postByFeedId = onChange
               .target(watchedState.posts.data)
               .filter((elem) => elem.feedId === id);
-            console.log(postByFeedId);
+            // console.log(postByFeedId);
             const parsedRss = rssParser(response.data);
             const { posts } = parsedRss;
 
             posts.forEach((post) => {
-              console.log('checking the posts', post);
-              console.log(_.find(postByFeedId, { title: post.title }));
+              // console.log('checking the posts', post);
+              // console.log(_.find(postByFeedId, { title: post.title }));
               if (!_.find(postByFeedId, { title: post.title })) {
                 watchedState.posts.addPost({
                   title: post.title,
@@ -223,6 +220,12 @@ const runApp = async () => {
     const buttonId = Number(button.getAttribute('data-id'));
     const modalTitle = document.querySelector('.modal-title');
     const post = _.find(watchedState.posts.data, { id: buttonId });
+    post.visited = true;
+    const a = document.querySelector(`[data-id="${buttonId}"]`);
+    // console.log('aaa', a);
+    a.classList.remove('fw-bold');
+    a.classList.add('fw-normal', 'link-secondary');
+    // console.log('a target', e.target, e.target.dataset.id);
     modalTitle.innerHTML = post.title;
     const modalBody = document.querySelector('.modal-body');
     modalBody.innerHTML = post.description;

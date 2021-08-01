@@ -1,5 +1,5 @@
 export default (responseData) => {
-  console.log('rss parser responseData', responseData);
+  // console.log('rss parser responseData', responseData);
   const parser = new DOMParser();
   const doc = parser.parseFromString(responseData.contents, 'application/xml');
 
