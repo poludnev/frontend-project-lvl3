@@ -193,11 +193,12 @@ export default async () => {
         );
       })
       .then((httpResponse) => {
-        console.log('after axios', httpResponse);
+        // console.log('after axios', httpResponse);
         return schema.validate({ rss: httpResponse.data.contents, httpResponse });
       })
       .then(({ httpResponse }) => {
-        console.log('rss valid', httpResponse);
+        // console.log('rss valid', httpResponse);
+        console.log('rss valid');
         const parsedRss = rssParser(httpResponse.data);
         console.log('parsed rss', parsedRss);
 
@@ -220,7 +221,7 @@ export default async () => {
         // x1();
       })
       .catch((e) => {
-        console.log(e);
+        console.log('error in catch', e);
         if (!e) return;
         watchedState.errors.push(e);
         watchedState.feedbackMessage = e.errors[0].value;
