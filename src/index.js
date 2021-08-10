@@ -88,14 +88,16 @@ export default async () => {
       // console.log('posts changed');
       viewHandlers.posts(current);
       const a = document.querySelectorAll('.posts a');
-      [...a].forEach((el) => el.addEventListener('click', (e) => {
-        e.target.classList.remove('fw-bold');
-        e.target.classList.add('fw-normal', 'link-secondary');
-        console.log('a target', e.target, e.target.dataset.id);
-        const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
-        post.visited = true;
-        console.log('pist find', post);
-      }));
+      [...a].forEach((el) =>
+        el.addEventListener('click', (e) => {
+          e.target.classList.remove('fw-bold');
+          e.target.classList.add('fw-normal', 'link-secondary');
+          console.log('a target', e.target, e.target.dataset.id);
+          const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
+          post.visited = true;
+          console.log('pist find', post);
+        }),
+      );
     }
   });
 
@@ -161,6 +163,7 @@ export default async () => {
   const form = document.querySelector('form');
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    console.log('log event', event);
     const inputValue = event.target.url.value;
 
     if (isUrlExists(inputValue, watchedState)) {
@@ -193,12 +196,14 @@ export default async () => {
 
         watchedState.feeds.addFeed(feed);
 
-        posts.forEach(({ title, link, description }) => watchedState.posts.addPost({
-          title,
-          link,
-          description,
-          feedId: watchedState.feeds.lastsIndex - 1,
-        }));
+        posts.forEach(({ title, link, description }) =>
+          watchedState.posts.addPost({
+            title,
+            link,
+            description,
+            feedId: watchedState.feeds.lastsIndex - 1,
+          }),
+        );
 
         watchedState.errors = [];
         watchedState.feedbackMessage = i18nInstance.t('feedback.success');
