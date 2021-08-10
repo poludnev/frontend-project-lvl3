@@ -163,17 +163,17 @@ export default async () => {
   const form = document.querySelector('form');
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    console.log('log event', event);
-    console.log('log event target', event.target);
-    console.log('log event target.url', event.target.url);
-    console.log('log event target.elements', event.target.elements);
-    console.log('log event target.elements.url', event.target.elements.url);
-    console.log('log event target.elements.url', event.target.elements.url.value);
-    console.log('log event target', event.target[0].value);
+    // console.log('log event', event);
+    // console.log('log event target', event.target);
+    // console.log('log event target.url', event.target.url);
+    // console.log('log event target.elements', event.target.elements);
+    // console.log('log event target.elements.url', event.target.elements.url);
+    // console.log('log event target.elements.url', event.target.elements.url.value);
+    // console.log('log event target', event.target[0].value);
 
-    const formData = new FormData(form);
-    console.log('form data', formData);
-    const inputValue = event.target.url.value;
+    // const formData = new FormData(form);
+    // console.log('form data', formData);
+    const inputValue = event.target.elements.url.value;
 
     if (isUrlExists(inputValue, watchedState)) {
       watchedState.feedbackMessage = i18nInstance.t('feedback.urlExists');
