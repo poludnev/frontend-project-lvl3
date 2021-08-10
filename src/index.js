@@ -164,6 +164,8 @@ export default async () => {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     console.log('log event', event);
+    console.log('log event', event.target);
+    console.log('log event', event.target.url);
     const inputValue = event.target.url.value;
 
     if (isUrlExists(inputValue, watchedState)) {
