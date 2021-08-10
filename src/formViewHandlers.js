@@ -1,11 +1,16 @@
 const inValidHandler = (state) => {
   const input = document.querySelector('input');
-  const button = document.querySelector('button');
+  const button = document.querySelector('[name="add"]');
+  console.log(button);
   const feedback = document.querySelector('.feedback');
   input.classList.add('is-invalid');
   feedback.innerHTML = `${state.feedbackMessage}`;
   feedback.classList.remove('text-success');
   feedback.classList.add('text-danger');
+  // input.disabled = true;
+  // button.disabled = true;
+  // input.setAttribute('readonly', '');
+  // button.setAttribute('readonly', '');
   input.disabled = false;
   button.disabled = false;
   input.removeAttribute('readonly');
@@ -13,7 +18,7 @@ const inValidHandler = (state) => {
 };
 const validHandler = (state) => {
   const input = document.querySelector('input');
-  const button = document.querySelector('button');
+  const button = document.querySelector('[name="add"]');
   const feedback = document.querySelector('.feedback');
   input.classList.remove('is-invalid');
   input.disabled = false;
@@ -30,7 +35,7 @@ const validHandler = (state) => {
 
 const requestingHAndler = () => {
   const input = document.querySelector('input');
-  const button = document.querySelector('button');
+  const button = document.querySelector('[name="add"]');
   const feedback = document.querySelector('.feedback');
   input.classList.remove('is-invalid');
   input.disabled = true;
@@ -153,28 +158,28 @@ const renderPosts = (state) => {
 
 const viewHandlers = {
   requesting() {
-    // console.log('requesting handler started');
+    console.log('requesting handler started');
     requestingHAndler();
     return true;
   },
   success(state) {
-    // console.log('success handler started');
+    console.log('success handler started');
     validHandler(state);
     return true;
   },
   urlExists(state) {
-    // console.log('urlExists handler started');
+    console.log('urlExists handler started');
     urlExistsHandler(state);
     return true;
   },
   invalidURL(message) {
-    // console.log('invalidInput handler started');
+    console.log('invalidInput handler started');
     // console.log('invalid state message', message, errors);
     inValidHandler(message);
     return true;
   },
   invalidRSS(message) {
-    // console.log('invalidInput handler started');
+    console.log('invalidRss handler started');
     // console.log('invalid state message', message, errors);
     inValidHandler(message);
     return true;
@@ -183,14 +188,15 @@ const viewHandlers = {
     inValidHandler(message);
   },
   inputting() {
-    // console.log('inputting handler started');
+    console.log('inputting handler started');
     inputtingHandler();
     return true;
   },
   feeds(state) {
-    // console.log('feeds handler started');
+    console.log('feeds handler started');
     renderFeeds(state);
   },
+
   posts(state) {
     // console.log('posts handler started');
     renderPosts(state);
