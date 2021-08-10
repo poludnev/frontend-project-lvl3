@@ -197,7 +197,7 @@ export default async () => {
         return schema.validate({ rss: httpResponse.data.contents, httpResponse });
       })
       .then(({ httpResponse }) => {
-        // console.log('rss valid', httpResponse);
+        console.log('rss valid', httpResponse);
         console.log('rss valid');
         const parsedRss = rssParser(httpResponse.data);
         console.log('parsed rss', parsedRss);
