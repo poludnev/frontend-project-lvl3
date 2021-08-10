@@ -19,7 +19,7 @@ const isUrlExists = (url, state) => {
 
 // const runApp = async () => {
 export default async () => {
-  console.log('app started');
+  // console.log('app started');
 
   const i18nInstance = i18next.createInstance();
 
@@ -74,7 +74,7 @@ export default async () => {
   };
 
   const watchedState = onChange(state, (path, current) => {
-    console.log('watchedState changes', path);
+    // console.log('watchedState changes', path);
     if (path === 'formState') {
       // console.log('formState changed', `path: ${path}, current:
       // ${ current }, previous: ${ previous }`);
@@ -92,10 +92,10 @@ export default async () => {
         el.addEventListener('click', (e) => {
           e.target.classList.remove('fw-bold');
           e.target.classList.add('fw-normal', 'link-secondary');
-          console.log('a target', e.target, e.target.dataset.id);
+          // console.log('a target', e.target, e.target.dataset.id);
           const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
           post.visited = true;
-          console.log('pist find', post);
+          // console.log('pist find', post);
         }),
       );
     }
@@ -184,7 +184,7 @@ export default async () => {
     schema
       .validate({ url: inputValue })
       .then(({ url }) => {
-        console.log('schema validation', url);
+        // console.log('schema validation', url);
         watchedState.formState = 'requesting';
         return axios.get(
           `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(
@@ -193,14 +193,14 @@ export default async () => {
         );
       })
       .then((httpResponse) => {
-        console.log('after axios', httpResponse);
+        // console.log('after axios', httpResponse);
         return schema.validate({ rss: httpResponse.data.contents, httpResponse });
       })
       .then(({ httpResponse }) => {
-        console.log('rss valid', httpResponse);
-        console.log('rss valid');
+        // console.log('rss valid', httpResponse);
+        // console.log('rss valid');
         const parsedRss = rssParser(httpResponse.data);
-        console.log('parsed rss', parsedRss);
+        // console.log('parsed rss', parsedRss);
 
         const { feed, posts } = parsedRss;
 
@@ -221,7 +221,7 @@ export default async () => {
         // x1();
       })
       .catch((e) => {
-        console.log('error in catch', e);
+        // console.log('error in catch', e);
         // const netError = /Network Error/g.exec(e);
         if (!e) return;
         watchedState.errors.push(e);
