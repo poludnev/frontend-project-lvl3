@@ -185,7 +185,7 @@ export default async () => {
       .validate({ url: inputValue })
       .then(({ url }) => {
         console.log('schema validation', url);
-
+        watchedState.formState = 'requesting';
         return axios.get(
           `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(
             url,
