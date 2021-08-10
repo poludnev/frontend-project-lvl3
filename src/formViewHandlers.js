@@ -8,6 +8,8 @@ const inValidHandler = (state) => {
   feedback.classList.add('text-danger');
   input.disabled = false;
   button.disabled = false;
+  input.removeAttribute('readonly');
+  button.removeAttribute('readonly');
 };
 const validHandler = (state) => {
   const input = document.querySelector('input');
@@ -16,6 +18,8 @@ const validHandler = (state) => {
   input.classList.remove('is-invalid');
   input.disabled = false;
   button.disabled = false;
+  input.removeAttribute('readonly');
+  button.removeAttribute('readonly');
   input.value = '';
   // feedback.innerHTML = 'RSS успешно загружен';
   // console.log('validHandler state', state);
@@ -31,6 +35,8 @@ const requestingHAndler = () => {
   input.classList.remove('is-invalid');
   input.disabled = true;
   button.disabled = true;
+  input.setAttribute('readonly', '');
+  button.setAttribute('readonly', '');
   feedback.innerHTML = '';
 };
 
