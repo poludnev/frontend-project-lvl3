@@ -204,7 +204,7 @@ export default async () => {
 
         const { feed, posts } = parsedRss;
 
-        watchedState.feeds.addFeed(feed);
+        watchedState.feeds.addFeed({ ...feed, link: inputValue });
 
         posts.forEach(({ title, link, description }) =>
           watchedState.posts.addPost({

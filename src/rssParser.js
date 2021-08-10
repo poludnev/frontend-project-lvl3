@@ -14,9 +14,9 @@ export default (responseData) => {
   const title = parseRSSString(doc.querySelector('title').innerHTML);
   const description = parseRSSString(doc.querySelector('description').innerHTML);
   console.log('rssparser, getting link', responseData);
-  const link = responseData.status.url;
+  // const link = responseData.status.url;
 
-  const feed = { title, description, link };
+  const feed = { title, description };
 
   const items = [...doc.querySelectorAll('item')].map((item) => ({
     title: parseRSSString(item.children[0].innerHTML),
