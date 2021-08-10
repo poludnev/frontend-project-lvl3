@@ -193,7 +193,7 @@ export default async () => {
         );
       })
       .then((httpResponse) => {
-        // console.log('after axios', httpResponse);
+        console.log('after axios', httpResponse);
         return schema.validate({ rss: httpResponse.data.contents, httpResponse });
       })
       .then(({ httpResponse }) => {
@@ -222,8 +222,14 @@ export default async () => {
       })
       .catch((e) => {
         console.log('error in catch', e);
+        // const netError = /Network Error/g.exec(e);
         if (!e) return;
         watchedState.errors.push(e);
+        if (/Network Error/g.exec(e)) {
+          watchedState.feedbackMessage = 'Ошибка сети';
+          watchedState.formState = 'networkError';
+          return;
+        }
         watchedState.feedbackMessage = e.errors[0].value;
         watchedState.formState = e.errors[0].name;
       });
