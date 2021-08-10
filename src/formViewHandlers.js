@@ -183,7 +183,7 @@ const viewHandlers = {
     return true;
   },
   invalidRSS(message) {
-    console.log('invalidRss handler started');
+    // console.log('invalidRss handler started');
     // console.log('invalid state message', message, errors);
     inValidHandler(message);
     return true;
@@ -191,11 +191,11 @@ const viewHandlers = {
   networkError(message) {
     inValidHandler(message);
   },
-  inputting() {
-    // console.log('inputting handler started');
-    inputtingHandler();
-    return true;
-  },
+  // inputting() {
+  //   console.log('inputting handler started');
+  //   // inputtingHandler();
+  //   return true;
+  // },
   feeds(state) {
     // console.log('feeds handler started');
     renderFeeds(state);
