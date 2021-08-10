@@ -193,7 +193,7 @@ export default async () => {
         );
       })
       .then((httpResponse) => {
-        console.log('aftera axios', httpResponse);
+        console.log('after axios', httpResponse);
         return schema.validate({ rss: httpResponse.data.contents, httpResponse });
       })
       .then(({ httpResponse }) => {
@@ -220,6 +220,8 @@ export default async () => {
         // x1();
       })
       .catch((e) => {
+        console.log(e);
+        if (!e) return;
         watchedState.errors.push(e);
         watchedState.feedbackMessage = e.errors[0].value;
         watchedState.formState = e.errors[0].name;
