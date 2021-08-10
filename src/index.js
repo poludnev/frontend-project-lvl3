@@ -168,6 +168,8 @@ export default async () => {
     console.log('log event target.url', event.target.url);
     console.log('log event target.elements', event.target.elements);
     console.log('log event target.elements.url', event.target.elements.url);
+    console.log('log event target.elements.url', event.target.elements.url.value);
+    console.log('log event target', event.target[0].value);
 
     const formData = new FormData(form);
     console.log('form data', formData);
