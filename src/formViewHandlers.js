@@ -11,8 +11,8 @@ const inValidHandler = (state) => {
   // button.disabled = true;
   // input.setAttribute('readonly', '');
   // button.setAttribute('readonly', '');
-  input.disabled = false;
-  button.disabled = false;
+  // input.disabled = false;
+  // button.disabled = false;
   input.removeAttribute('readonly');
   button.removeAttribute('readonly');
 };
@@ -21,8 +21,8 @@ const validHandler = (state) => {
   const button = document.querySelector('[name="add"]');
   const feedback = document.querySelector('.feedback');
   input.classList.remove('is-invalid');
-  input.disabled = false;
-  button.disabled = false;
+  // input.disabled = false;
+  // button.disabled = false;
   input.removeAttribute('readonly');
   button.removeAttribute('readonly');
   input.value = '';
@@ -38,8 +38,8 @@ const requestingHAndler = () => {
   const button = document.querySelector('[name="add"]');
   const feedback = document.querySelector('.feedback');
   input.classList.remove('is-invalid');
-  input.disabled = true;
-  button.disabled = true;
+  // input.disabled = true;
+  // button.disabled = true;
   input.setAttribute('readonly', '');
   button.setAttribute('readonly', '');
   feedback.innerHTML = '';
@@ -187,11 +187,7 @@ const viewHandlers = {
   networkError(message) {
     inValidHandler(message);
   },
-  // inputting() {
-  //   console.log('inputting handler started');
-  //   // inputtingHandler();
-  //   return true;
-  // },
+
   feeds(state) {
     // console.log('feeds handler started');
     renderFeeds(state);
