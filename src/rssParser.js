@@ -1,30 +1,21 @@
 export default (responseData) => {
-  // console.log('rss parser responseData', responseData);
+  const cleanOutCDATA = (string) => (string.includes('CDATA') ? string.slice(9, -3) : string);
+
   const parser = new DOMParser();
   const doc = parser.parseFromString(responseData.contents, 'application/xml');
 
-  const parseRSSString = (string) => {
-    if (string.includes('CDATA')) {
-      console.log(string);
-      return string.slice(9, -3);
-    }
-    return string;
-  };
+  const feedTitle = cleanOutCDATA(doc.querySelector('title').innerHTML);
+  const feedDescription = cleanOutCDATA(doc.querySelector('description').innerHTML);
 
-  const title = parseRSSString(doc.querySelector('title').innerHTML);
-  const description = parseRSSString(doc.querySelector('description').innerHTML);
-  // console.log('rssparser, getting link', responseData);
-  // const link = responseData.status.url;
+  const feed = { feedTitle, feedDescription };
 
-  const feed = { title, description };
+  const items = [...doc.querySelectorAll('item')];
 
-  const items = [...doc.querySelectorAll('item')].map((item) => ({
-    title: parseRSSString(item.children[0].innerHTML),
-    description: parseRSSString(item.children[3].innerHTML),
+  const posts = items.map((item) => ({
+    title: cleanOutCDATA(item.children[0].innerHTML),
+    description: cleanOutCDATA(item.children[3].innerHTML),
     link: item.children[2].innerHTML,
   }));
-
-  const posts = items;
 
   return { feed, posts };
 };
