@@ -68,8 +68,8 @@ const makeFeedLi = (title, description) => {
   const p = document.createElement('p');
   p.classList.add('m-0', 'small', 'text-black-50');
   p.innerHTML = description;
-  li.appendChild(h3, p);
-  // li.appendChild(p);
+  li.appendChild(h3);
+  li.appendChild(p);
   return li;
 };
 
