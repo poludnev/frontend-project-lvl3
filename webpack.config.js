@@ -10,8 +10,8 @@ export default {
   plugins: [
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: './src/template.html',
-      // template: './index.html',
+      // template: './src/template.html',
+      template: './index.html',
     }),
   ],
 };
