@@ -14,27 +14,18 @@ const inValidHandler = (state) => {
   feedback.classList.add('text-danger');
 };
 
-const urlExistsHandler = (state) => {
-  const input = document.querySelector('input');
-  input.classList.add('is-invalid');
-
-  const feedback = document.querySelector('.feedback');
-  feedback.innerHTML = `${state.feedbackMessage}`;
-  feedback.classList.remove('text-success');
-  feedback.classList.add('text-danger');
-};
 const validHandler = (state) => {
   const input = document.querySelector('input');
-  const button = document.querySelector('[name="add"]');
-  const feedback = document.querySelector('.feedback');
+  input.removeAttribute('readonly');
   input.classList.remove('is-invalid');
   input.disabled = false;
-  button.disabled = false;
-  input.removeAttribute('readonly');
-  button.removeAttribute('readonly');
   input.value = '';
-  // feedback.innerHTML = 'RSS успешно загружен';
-  // console.log('validHandler state', state);
+
+  const button = document.querySelector('[name="add"]');
+  button.disabled = false;
+  button.removeAttribute('readonly');
+
+  const feedback = document.querySelector('.feedback');
   feedback.innerHTML = `${state.feedbackMessage}`;
   feedback.classList.add('text-success');
   feedback.classList.remove('text-danger');
@@ -164,23 +155,20 @@ const viewHandlers = {
     validHandler(state);
   },
   urlExists(state) {
-    // urlExistsHandler(state);
     inValidHandler(state);
   },
-  invalidURL(message) {
-    inValidHandler(message);
+  invalidURL(state) {
+    inValidHandler(state);
   },
-  invalidRSS(message) {
-    inValidHandler(message);
+  invalidRSS(state) {
+    inValidHandler(state);
   },
-  networkError(message) {
-    inValidHandler(message);
+  networkError(state) {
+    inValidHandler(state);
   },
-
   feeds(state) {
     renderFeeds(state);
   },
-
   posts(state) {
     renderPosts(state);
   },
