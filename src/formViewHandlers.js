@@ -16,6 +16,7 @@ const inValidHandler = (state) => {
   input.removeAttribute('readonly');
   button.removeAttribute('readonly');
 };
+
 const validHandler = (state) => {
   const input = document.querySelector('input');
   const button = document.querySelector('[name="add"]');
@@ -93,9 +94,7 @@ const renderFeeds = (state) => {
 
   feedsData
     .sort((a, b) => b.id - a.id)
-    .forEach(({
-      title, description, link, id,
-    }) => {
+    .forEach(({ title, description, link, id }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
   feeds.appendChild(feedsUl);
@@ -123,20 +122,12 @@ const makePostsLi = (title, description, link, id, visited, buttonsName) => {
   }
 
   a.innerHTML = `${title}`;
-  // a.addEventListener('click', (e) => {
-  //   e.target.classList.remove('fw-bold');
-  //   e.target.classList.add('fw-normal', 'link-secondary');
-  //   console.log('a target', e.target, e.target.dataset.id);
-  //   const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
-  //   post.visited = true;
-  //   console.log('pist find', post);
-  // });
   const button = document.createElement('button');
   button.type = 'button';
   button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
   button.dataset.id = id;
   button.dataset.bsToggle = 'modal';
-  button.dataset.bsTarget = '#exampleModal';
+  button.dataset.bsTarget = 'modal';
   button.innerHTML = buttonsName;
   li.appendChild(a);
   li.appendChild(button);
@@ -152,9 +143,7 @@ const renderPosts = (state) => {
   const postsData = state.data;
   postsData
     .sort((a, b) => b.feedId - a.feedId)
-    .forEach(({
-      title, description, link, id, visited,
-    }) => {
+    .forEach(({ title, description, link, id, visited }) => {
       postsUl.appendChild(makePostsLi(title, description, link, id, visited, state.buttonsName));
     });
   posts.appendChild(postsUl);

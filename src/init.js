@@ -6,7 +6,6 @@ import i18next from 'i18next';
 import viewHandlers from './formViewHandlers.js';
 import rssParser from './rssParser.js';
 import ru from './locales/ru.js';
-// import 'bootstrap/dist/js/bootstrap.min.js';
 
 export default () => {
   const i18nInstance2 = i18next.createInstance();
@@ -181,6 +180,7 @@ export default () => {
 
       const modal = document.querySelector('.modal');
       modal.addEventListener('show.bs.modal', (e) => {
+        console.log('modal');
         const button = e.relatedTarget;
         const buttonId = Number(button.getAttribute('data-id'));
         const modalTitle = document.querySelector('.modal-title');
