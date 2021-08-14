@@ -4,10 +4,10 @@ export default (responseData) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(responseData.contents, 'application/xml');
 
-  const feedTitle = cleanOutCDATA(doc.querySelector('title').innerHTML);
-  const feedDescription = cleanOutCDATA(doc.querySelector('description').innerHTML);
+  const title = cleanOutCDATA(doc.querySelector('title').innerHTML);
+  const description = cleanOutCDATA(doc.querySelector('description').innerHTML);
 
-  const feed = { feedTitle, feedDescription };
+  const feed = { title, description };
 
   const items = [...doc.querySelectorAll('item')];
 
