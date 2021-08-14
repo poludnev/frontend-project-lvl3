@@ -1,20 +1,27 @@
 const inValidHandler = (state) => {
   const input = document.querySelector('input');
-  const button = document.querySelector('[name="add"]');
-  // console.log(button);
-  const feedback = document.querySelector('.feedback');
   input.classList.add('is-invalid');
+  input.removeAttribute('readonly');
+  input.disabled = false;
+
+  const button = document.querySelector('[name="add"]');
+  button.disabled = false;
+  button.removeAttribute('readonly');
+
+  const feedback = document.querySelector('.feedback');
   feedback.innerHTML = `${state.feedbackMessage}`;
   feedback.classList.remove('text-success');
   feedback.classList.add('text-danger');
-  // input.disabled = true;
-  // button.disabled = true;
-  // input.setAttribute('readonly', '');
-  // button.setAttribute('readonly', '');
-  input.disabled = false;
-  button.disabled = false;
-  input.removeAttribute('readonly');
-  button.removeAttribute('readonly');
+};
+
+const urlExistsHandler = (state) => {
+  const input = document.querySelector('input');
+  input.classList.add('is-invalid');
+
+  const feedback = document.querySelector('.feedback');
+  feedback.innerHTML = `${state.feedbackMessage}`;
+  feedback.classList.remove('text-success');
+  feedback.classList.add('text-danger');
 };
 const validHandler = (state) => {
   const input = document.querySelector('input');
@@ -35,23 +42,16 @@ const validHandler = (state) => {
 
 const requestingHAndler = () => {
   const input = document.querySelector('input');
-  const button = document.querySelector('[name="add"]');
-  const feedback = document.querySelector('.feedback');
   input.classList.remove('is-invalid');
   input.disabled = true;
-  button.disabled = true;
   input.setAttribute('readonly', '');
-  button.setAttribute('readonly', '');
-  feedback.innerHTML = '';
-};
 
-const urlExistsHandler = (state) => {
-  const input = document.querySelector('input');
+  const button = document.querySelector('[name="add"]');
+  button.setAttribute('readonly', '');
+  button.disabled = true;
+
   const feedback = document.querySelector('.feedback');
-  input.classList.add('is-invalid');
-  feedback.innerHTML = `${state.feedbackMessage}`;
-  feedback.classList.remove('text-success');
-  feedback.classList.add('text-danger');
+  feedback.innerHTML = '';
 };
 
 const makeCard = (title) => {
@@ -158,43 +158,30 @@ const renderPosts = (state) => {
 
 const viewHandlers = {
   requesting() {
-    // console.log('requesting handler started');
     requestingHAndler();
-    return true;
   },
   success(state) {
-    // console.log('success handler started');
     validHandler(state);
-    return true;
   },
   urlExists(state) {
-    // console.log('urlExists handler started');
-    urlExistsHandler(state);
-    return true;
+    // urlExistsHandler(state);
+    inValidHandler(state);
   },
   invalidURL(message) {
-    // console.log('invalidInput handler started');
-    // console.log('invalid state message', message, errors);
     inValidHandler(message);
-    return true;
   },
   invalidRSS(message) {
-    // console.log('invalidRss handler started');
-    // console.log('invalid state message', message, errors);
     inValidHandler(message);
-    return true;
   },
   networkError(message) {
     inValidHandler(message);
   },
 
   feeds(state) {
-    // console.log('feeds handler started');
     renderFeeds(state);
   },
 
   posts(state) {
-    // console.log('posts handler started');
     renderPosts(state);
   },
 };
