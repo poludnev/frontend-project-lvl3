@@ -1,4 +1,4 @@
-const inValidHandler = (state) => {
+const invalidHandler = (state) => {
   const input = document.querySelector('input');
   input.classList.add('is-invalid');
   input.removeAttribute('readonly');
@@ -31,7 +31,7 @@ const validHandler = (state) => {
   feedback.classList.remove('text-danger');
 };
 
-const requestingHAndler = () => {
+const requestingHandler = () => {
   const input = document.querySelector('input');
   input.classList.remove('is-invalid');
   input.disabled = true;
@@ -61,6 +61,7 @@ const makeUl = () => {
 const makeFeedLi = (title, description) => {
   const li = document.createElement('li');
   li.classList.add('list-group-item', 'border-0', 'border-end-0');
+
   const h3 = document.createElement('h3');
   h3.classList.add('h6', 'm-0');
   h3.innerHTML = title;
@@ -68,16 +69,14 @@ const makeFeedLi = (title, description) => {
   const p = document.createElement('p');
   p.classList.add('m-0', 'small', 'text-black-50');
   p.innerHTML = description;
-  li.appendChild(h3);
-  li.appendChild(p);
+
+  li.appendChild(h3, p);
   return li;
 };
 
 const renderFeeds = (state) => {
-  // console.log('renderFeeds state', state);
   const feeds = document.querySelector('.feeds');
   feeds.innerHTML = '';
-  if (state.data.length === 0) return;
   feeds.appendChild(makeCard(state.title));
   const feedsUl = makeUl();
   const feedsData = state.data;
@@ -112,14 +111,7 @@ const makePostsLi = (title, description, link, id, visited, buttonsName) => {
   }
 
   a.innerHTML = `${title}`;
-  // a.addEventListener('click', (e) => {
-  //   e.target.classList.remove('fw-bold');
-  //   e.target.classList.add('fw-normal', 'link-secondary');
-  //   console.log('a target', e.target, e.target.dataset.id);
-  //   const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
-  //   post.visited = true;
-  //   console.log('pist find', post);
-  // });
+
   const button = document.createElement('button');
   button.type = 'button';
   button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
@@ -135,7 +127,6 @@ const makePostsLi = (title, description, link, id, visited, buttonsName) => {
 const renderPosts = (state) => {
   const posts = document.querySelector('.posts');
   posts.innerHTML = '';
-  if (state.data.length === 0) return;
   posts.appendChild(makeCard(state.title));
   const postsUl = makeUl();
   const postsData = state.data;
@@ -149,22 +140,22 @@ const renderPosts = (state) => {
 
 const viewHandlers = {
   requesting() {
-    requestingHAndler();
+    requestingHandler();
   },
   success(state) {
     validHandler(state);
   },
   urlExists(state) {
-    inValidHandler(state);
+    invalidHandler(state);
   },
   invalidURL(state) {
-    inValidHandler(state);
+    invalidHandler(state);
   },
   invalidRSS(state) {
-    inValidHandler(state);
+    invalidHandler(state);
   },
   networkError(state) {
-    inValidHandler(state);
+    invalidHandler(state);
   },
   feeds(state) {
     renderFeeds(state);
