@@ -61,7 +61,6 @@ export default () => {
       };
 
       const watchedState = onChange(state, (path, current) => {
-        // console.log('watchedState', path);
         if (path === 'formState') {
           viewHandlers[current](onChange.target(watchedState));
         }
@@ -71,12 +70,14 @@ export default () => {
         if (path === 'posts') {
           viewHandlers.posts(current);
           const postsLinks = document.querySelectorAll('.posts a');
-          postsLinks.forEach((link) => link.addEventListener('click', (e) => {
-            e.target.classList.remove('fw-bold');
-            e.target.classList.add('fw-normal', 'link-secondary');
-            const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
-            post.visited = true;
-          }));
+          postsLinks.forEach((link) =>
+            link.addEventListener('click', (e) => {
+              e.target.classList.remove('fw-bold');
+              e.target.classList.add('fw-normal', 'link-secondary');
+              const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
+              post.visited = true;
+            }),
+          );
         }
       });
 
@@ -140,16 +141,17 @@ export default () => {
           .then((response) => schema.validate({ rss: response.data.contents, response }))
           .then(({ response }) => {
             const { feed, posts } = rssParser(response.data);
-            // const { feed, posts } = parsedRss;
 
             watchedState.feeds.addFeed({ ...feed, link: inputValue });
 
-            posts.forEach(({ title, link, description }) => watchedState.posts.addPost({
-              title,
-              link,
-              description,
-              feedId: watchedState.feeds.lastsIndex - 1,
-            }));
+            posts.forEach(({ title, link, description }) =>
+              watchedState.posts.addPost({
+                title,
+                link,
+                description,
+                feedId: watchedState.feeds.lastsIndex - 1,
+              }),
+            );
 
             watchedState.errors = [];
             watchedState.feedbackMessage = locales('feedback.success');

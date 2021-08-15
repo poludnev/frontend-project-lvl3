@@ -1,39 +1,25 @@
 const initialHandler = (locales) => {
-  // console.log('initial state view handler');
   document.querySelector('h1').innerHTML = locales('title');
   document.querySelector('.lead').innerHTML = locales('lead');
   document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
   document.querySelector('form button').innerHTML = locales('form.button');
   document.querySelector('form ~ p').innerHTML = locales('sampleUrl');
+  document.querySelector('.modal-footer button').textContent = locales('modal.closeButton');
+  document.querySelector('.full-article').textContent = locales('modal.readButton');
+
   const footerLink = document.querySelector('footer a');
   footerLink.innerHTML = locales('footer.link');
-  const footerText = footerLink.parentElement;
-  footerText.childNodes[0].nodeValue = locales('footer.text');
-
-  const closeButton = document.querySelector('.modal-footer button');
-  closeButton.textContent = locales('modal.closeButton');
-  const fullArticle = document.querySelector('.full-article');
-  // fullArticle.href = post.link;
-  fullArticle.textContent = locales('modal.readButton');
+  footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
 };
 
 const modalHandler = (post) => {
-  const modalTitle = document.querySelector('.modal-title');
-  modalTitle.innerHTML = post.title;
-
-  const modalBody = document.querySelector('.modal-body');
-  modalBody.innerHTML = post.description;
+  document.querySelector('.modal-title').innerHTML = post.title;
+  document.querySelector('.modal-body').innerHTML = post.description;
+  document.querySelector('.full-article').href = post.link;
 
   const a = document.querySelector(`[data-id="${post.id}"]`);
   a.classList.remove('fw-bold');
   a.classList.add('fw-normal', 'link-secondary');
-
-  const fullArticle = document.querySelector('.full-article');
-  fullArticle.href = post.link;
-  // fullArticle.textContent = locales('modal.readButton');
-
-  // const closeButton = document.querySelector('.modal-footer button');
-  // closeButton.textContent = locales('modal.closeButton');
 };
 
 const invalidHandler = (state) => {
@@ -121,9 +107,7 @@ const renderFeeds = (state) => {
 
   feedsData
     .sort((a, b) => b.id - a.id)
-    .forEach(({
-      title, description, link, id,
-    }) => {
+    .forEach(({ title, description, link, id }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
   feeds.appendChild(feedsUl);
@@ -173,9 +157,7 @@ const renderPosts = (state) => {
   const postsData = state.data;
   postsData
     .sort((a, b) => b.feedId - a.feedId)
-    .forEach(({
-      title, link, id, visited,
-    }) => {
+    .forEach(({ title, link, id, visited }) => {
       postsUl.appendChild(makePostsLi(title, link, id, visited, state.buttonsName));
     });
   posts.appendChild(postsUl);
