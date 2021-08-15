@@ -89,7 +89,7 @@ const renderFeeds = (state) => {
   feeds.appendChild(feedsUl);
 };
 
-const makePostsLi = (title, description, link, id, visited, buttonsName) => {
+const makePostsLi = (title, link, id, visited, buttonName) => {
   const li = document.createElement('li');
   li.classList.add(
     'list-group-item',
@@ -117,7 +117,8 @@ const makePostsLi = (title, description, link, id, visited, buttonsName) => {
   button.dataset.id = id;
   button.dataset.bsToggle = 'modal';
   button.dataset.bsTarget = '#exampleModal';
-  button.innerHTML = buttonsName;
+  button.innerHTML = buttonName;
+
   li.appendChild(a);
   li.appendChild(button);
   return li;
@@ -132,8 +133,8 @@ const renderPosts = (state) => {
   const postsData = state.data;
   postsData
     .sort((a, b) => b.feedId - a.feedId)
-    .forEach(({ title, description, link, id, visited }) => {
-      postsUl.appendChild(makePostsLi(title, description, link, id, visited, state.buttonsName));
+    .forEach(({ title, link, id, visited }) => {
+      postsUl.appendChild(makePostsLi(title, link, id, visited, state.buttonsName));
     });
   posts.appendChild(postsUl);
 };
