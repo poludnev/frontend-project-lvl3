@@ -7,6 +7,10 @@
 
 ### Features
 
+- Convenient interface
+- Errors feedback
+- Update each five seconds
+
 ### Example
 
 [RSS Agregator](https://frontend-project-lvl3-smoky.vercel.app/)
