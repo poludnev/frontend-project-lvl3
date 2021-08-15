@@ -6,7 +6,6 @@ const initialHandler = (locales) => {
   document.querySelector('form ~ p').innerHTML = locales('sampleUrl');
   document.querySelector('.modal-footer button').textContent = locales('modal.closeButton');
   document.querySelector('.full-article').textContent = locales('modal.readButton');
-
   const footerLink = document.querySelector('footer a');
   footerLink.innerHTML = locales('footer.link');
   footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
