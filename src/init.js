@@ -71,14 +71,12 @@ export default () => {
         if (path === 'posts') {
           viewHandlers.posts(current);
           const postsLinks = document.querySelectorAll('.posts a');
-          postsLinks.forEach((link) =>
-            link.addEventListener('click', (e) => {
-              e.target.classList.remove('fw-bold');
-              e.target.classList.add('fw-normal', 'link-secondary');
-              const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
-              post.visited = true;
-            }),
-          );
+          postsLinks.forEach((link) => link.addEventListener('click', (e) => {
+            e.target.classList.remove('fw-bold');
+            e.target.classList.add('fw-normal', 'link-secondary');
+            const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
+            post.visited = true;
+          }));
         }
       });
 
@@ -113,9 +111,10 @@ export default () => {
               });
           });
         }
-
         return setTimeout(feedsUpdate, 5000);
       };
+
+      feedsUpdate();
 
       const form = document.querySelector('form');
       form.addEventListener('submit', (event) => {
@@ -140,19 +139,17 @@ export default () => {
           })
           .then((response) => schema.validate({ rss: response.data.contents, response }))
           .then(({ response }) => {
-            const parsedRss = rssParser(response.data);
-            const { feed, posts } = parsedRss;
+            const { feed, posts } = rssParser(response.data);
+            // const { feed, posts } = parsedRss;
 
             watchedState.feeds.addFeed({ ...feed, link: inputValue });
 
-            posts.forEach(({ title, link, description }) =>
-              watchedState.posts.addPost({
-                title,
-                link,
-                description,
-                feedId: watchedState.feeds.lastsIndex - 1,
-              }),
-            );
+            posts.forEach(({ title, link, description }) => watchedState.posts.addPost({
+              title,
+              link,
+              description,
+              feedId: watchedState.feeds.lastsIndex - 1,
+            }));
 
             watchedState.errors = [];
             watchedState.feedbackMessage = locales('feedback.success');
@@ -169,37 +166,13 @@ export default () => {
             watchedState.formState = e.errors[0].name;
           });
       });
-      feedsUpdate();
-
-      // const modalViewHandler = (post) => {
-      //   const modalTitle = document.querySelector('.modal-title');
-      //   modalTitle.innerHTML = post.title;
-
-      //   const modalBody = document.querySelector('.modal-body');
-      //   modalBody.innerHTML = post.description;
-
-      //   const a = document.querySelector(`[data-id="${post.id}"]`);
-      //   a.classList.remove('fw-bold');
-      //   a.classList.add('fw-normal', 'link-secondary');
-
-      //   const fullArticle = document.querySelector('.full-article');
-      //   fullArticle.href = post.link;
-      //   fullArticle.textContent = locales('modal.readButton');
-
-      //   const closeButton = document.querySelector('.modal-footer button');
-      //   closeButton.textContent = locales('modal.closeButton');
-      // };
 
       const modal = document.querySelector('.modal');
       modal.addEventListener('show.bs.modal', (e) => {
         const clickedButtonId = Number(e.relatedTarget.getAttribute('data-id'));
-
         const clickedPost = _.find(watchedState.posts.data, { id: clickedButtonId });
         clickedPost.visited = true;
-
         viewHandlers.modal(clickedPost);
       });
     });
 };
-
-// runApp();
