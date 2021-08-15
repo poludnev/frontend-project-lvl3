@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { find } from 'lodash';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import axios from 'axios';
@@ -70,14 +70,12 @@ export default () => {
         if (path === 'posts') {
           viewHandlers.posts(current);
           const postsLinks = document.querySelectorAll('.posts a');
-          postsLinks.forEach((link) =>
-            link.addEventListener('click', (e) => {
-              e.target.classList.remove('fw-bold');
-              e.target.classList.add('fw-normal', 'link-secondary');
-              const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
-              post.visited = true;
-            }),
-          );
+          postsLinks.forEach((link) => link.addEventListener('click', (e) => {
+            e.target.classList.remove('fw-bold');
+            e.target.classList.add('fw-normal', 'link-secondary');
+            const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
+            post.visited = true;
+          }));
         }
       });
 
@@ -100,7 +98,7 @@ export default () => {
                   .filter((elem) => elem.feedId === id);
                 const { posts } = rssParser(response.data);
                 posts.forEach((post) => {
-                  if (!_.find(postByFeedId, { title: post.title })) {
+                  if (!find(postByFeedId, { title: post.title })) {
                     watchedState.posts.addPost({
                       title: post.title,
                       link: post.link,
@@ -122,7 +120,7 @@ export default () => {
         event.preventDefault();
         const inputValue = event.target.elements.url.value;
 
-        if (_.find(watchedState.feeds.data, { link: inputValue })) {
+        if (find(watchedState.feeds.data, { link: inputValue })) {
           watchedState.feedbackMessage = locales('feedback.urlExists');
           watchedState.formState = 'urlExists';
           return;
@@ -144,14 +142,12 @@ export default () => {
 
             watchedState.feeds.addFeed({ ...feed, link: inputValue });
 
-            posts.forEach(({ title, link, description }) =>
-              watchedState.posts.addPost({
-                title,
-                link,
-                description,
-                feedId: watchedState.feeds.lastsIndex - 1,
-              }),
-            );
+            posts.forEach(({ title, link, description }) => watchedState.posts.addPost({
+              title,
+              link,
+              description,
+              feedId: watchedState.feeds.lastsIndex - 1,
+            }));
 
             watchedState.errors = [];
             watchedState.feedbackMessage = locales('feedback.success');

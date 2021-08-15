@@ -2,10 +2,20 @@ import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 export default {
-  entry: './src/index.js',
+  mode: 'production',
+  entry: {
+    index: {
+      import: './src/index.js',
+      dependOn: 'shared',
+    },
+    shared: ['lodash', 'on-change', 'yup', 'axios', 'i18next'],
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].bundle.js',
     path: path.resolve(process.cwd(), 'dist'),
+  },
+  optimization: {
+    runtimeChunk: 'single',
   },
   plugins: [
     new HtmlWebpackPlugin({

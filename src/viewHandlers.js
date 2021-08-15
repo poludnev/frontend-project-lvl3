@@ -107,7 +107,9 @@ const renderFeeds = (state) => {
 
   feedsData
     .sort((a, b) => b.id - a.id)
-    .forEach(({ title, description, link, id }) => {
+    .forEach(({
+      title, description, link, id,
+    }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
   feeds.appendChild(feedsUl);
@@ -157,7 +159,9 @@ const renderPosts = (state) => {
   const postsData = state.data;
   postsData
     .sort((a, b) => b.feedId - a.feedId)
-    .forEach(({ title, link, id, visited }) => {
+    .forEach(({
+      title, link, id, visited,
+    }) => {
       postsUl.appendChild(makePostsLi(title, link, id, visited, state.buttonsName));
     });
   posts.appendChild(postsUl);
