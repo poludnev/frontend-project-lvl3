@@ -73,7 +73,7 @@ export default () => {
           postsLinks.forEach((link) => link.addEventListener('click', (e) => {
             e.target.classList.remove('fw-bold');
             e.target.classList.add('fw-normal', 'link-secondary');
-            const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
+            const post = find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
             post.visited = true;
           }));
         }
@@ -168,7 +168,7 @@ export default () => {
       const modal = document.querySelector('.modal');
       modal.addEventListener('show.bs.modal', (e) => {
         const clickedButtonId = Number(e.relatedTarget.getAttribute('data-id'));
-        const clickedPost = _.find(watchedState.posts.data, { id: clickedButtonId });
+        const clickedPost = find(watchedState.posts.data, { id: clickedButtonId });
         clickedPost.visited = true;
         viewHandlers.modal(clickedPost);
       });
