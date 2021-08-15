@@ -84,16 +84,6 @@ export default () => {
 
       viewHandlers.initial(locales);
 
-      // document.querySelector('h1').innerHTML = locales('title');
-      // document.querySelector('.lead').innerHTML = locales('lead');
-      // document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
-      // document.querySelector('form button').innerHTML = locales('form.button');
-      // document.querySelector('form ~ p').innerHTML = locales('sampleUrl');
-      // const footerLink = document.querySelector('footer a');
-      // footerLink.innerHTML = locales('footer.link');
-      // const footerText = footerLink.parentElement;
-      // footerText.childNodes[0].nodeValue = locales('footer.text');
-
       const feedsUpdate = () => {
         const feeds = onChange.target(watchedState.feeds.data);
         if (feeds.length > 0) {
@@ -181,24 +171,33 @@ export default () => {
       });
       feedsUpdate();
 
+      // const modalViewHandler = (post) => {
+      //   const modalTitle = document.querySelector('.modal-title');
+      //   modalTitle.innerHTML = post.title;
+
+      //   const modalBody = document.querySelector('.modal-body');
+      //   modalBody.innerHTML = post.description;
+
+      //   const a = document.querySelector(`[data-id="${post.id}"]`);
+      //   a.classList.remove('fw-bold');
+      //   a.classList.add('fw-normal', 'link-secondary');
+
+      //   const fullArticle = document.querySelector('.full-article');
+      //   fullArticle.href = post.link;
+      //   fullArticle.textContent = locales('modal.readButton');
+
+      //   const closeButton = document.querySelector('.modal-footer button');
+      //   closeButton.textContent = locales('modal.closeButton');
+      // };
+
       const modal = document.querySelector('.modal');
       modal.addEventListener('show.bs.modal', (e) => {
-        const button = e.relatedTarget;
-        const buttonId = Number(button.getAttribute('data-id'));
-        const modalTitle = document.querySelector('.modal-title');
-        const post = _.find(watchedState.posts.data, { id: buttonId });
-        post.visited = true;
-        const a = document.querySelector(`[data-id="${buttonId}"]`);
-        a.classList.remove('fw-bold');
-        a.classList.add('fw-normal', 'link-secondary');
-        modalTitle.innerHTML = post.title;
-        const modalBody = document.querySelector('.modal-body');
-        modalBody.innerHTML = post.description;
-        const fullArticle = document.querySelector('.full-article');
-        fullArticle.href = post.link;
-        fullArticle.textContent = locales('modal.readButton');
-        const closeButton = document.querySelector('.modal-footer button');
-        closeButton.textContent = locales('modal.closeButton');
+        const clickedButtonId = Number(e.relatedTarget.getAttribute('data-id'));
+
+        const clickedPost = _.find(watchedState.posts.data, { id: clickedButtonId });
+        clickedPost.visited = true;
+
+        viewHandlers.modal(clickedPost);
       });
     });
 };

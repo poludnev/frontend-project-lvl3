@@ -9,6 +9,31 @@ const initialHandler = (locales) => {
   footerLink.innerHTML = locales('footer.link');
   const footerText = footerLink.parentElement;
   footerText.childNodes[0].nodeValue = locales('footer.text');
+
+  const closeButton = document.querySelector('.modal-footer button');
+  closeButton.textContent = locales('modal.closeButton');
+  const fullArticle = document.querySelector('.full-article');
+  // fullArticle.href = post.link;
+  fullArticle.textContent = locales('modal.readButton');
+};
+
+const modalHandler = (post) => {
+  const modalTitle = document.querySelector('.modal-title');
+  modalTitle.innerHTML = post.title;
+
+  const modalBody = document.querySelector('.modal-body');
+  modalBody.innerHTML = post.description;
+
+  const a = document.querySelector(`[data-id="${post.id}"]`);
+  a.classList.remove('fw-bold');
+  a.classList.add('fw-normal', 'link-secondary');
+
+  const fullArticle = document.querySelector('.full-article');
+  fullArticle.href = post.link;
+  // fullArticle.textContent = locales('modal.readButton');
+
+  // const closeButton = document.querySelector('.modal-footer button');
+  // closeButton.textContent = locales('modal.closeButton');
 };
 
 const invalidHandler = (state) => {
@@ -179,6 +204,9 @@ const viewHandlers = {
   },
   posts(state) {
     renderPosts(state);
+  },
+  modal(post) {
+    modalHandler(post);
   },
 };
 
