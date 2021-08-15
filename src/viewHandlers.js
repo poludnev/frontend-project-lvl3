@@ -1,3 +1,16 @@
+const initialHandler = (locales) => {
+  // console.log('initial state view handler');
+  document.querySelector('h1').innerHTML = locales('title');
+  document.querySelector('.lead').innerHTML = locales('lead');
+  document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
+  document.querySelector('form button').innerHTML = locales('form.button');
+  document.querySelector('form ~ p').innerHTML = locales('sampleUrl');
+  const footerLink = document.querySelector('footer a');
+  footerLink.innerHTML = locales('footer.link');
+  const footerText = footerLink.parentElement;
+  footerText.childNodes[0].nodeValue = locales('footer.text');
+};
+
 const invalidHandler = (state) => {
   const input = document.querySelector('input');
   input.classList.add('is-invalid');
@@ -140,6 +153,9 @@ const renderPosts = (state) => {
 };
 
 const viewHandlers = {
+  initial(state) {
+    initialHandler(state);
+  },
   requesting() {
     requestingHandler();
   },

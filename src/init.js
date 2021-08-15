@@ -3,7 +3,7 @@ import onChange from 'on-change';
 import * as yup from 'yup';
 import axios from 'axios';
 import i18next from 'i18next';
-import viewHandlers from './formViewHandlers.js';
+import viewHandlers from './viewHandlers.js';
 import rssParser from './rssParser.js';
 import ru from './locales/ru.js';
 import 'bootstrap/dist/js/bootstrap.min.js';
@@ -39,7 +39,6 @@ export default () => {
         formState: 'initial',
         feedbackMessage: '',
         errors: [],
-        listData: [],
         feeds: {
           title: locales('feedsTitle'),
           lastsIndex: 0,
@@ -62,6 +61,7 @@ export default () => {
       };
 
       const watchedState = onChange(state, (path, current) => {
+        // console.log('watchedState', path);
         if (path === 'formState') {
           viewHandlers[current](onChange.target(watchedState));
         }
@@ -71,8 +71,8 @@ export default () => {
         if (path === 'posts') {
           viewHandlers.posts(current);
           const postsLinks = document.querySelectorAll('.posts a');
-          postsLinks.forEach((postLink) =>
-            postLink.addEventListener('click', (e) => {
+          postsLinks.forEach((link) =>
+            link.addEventListener('click', (e) => {
               e.target.classList.remove('fw-bold');
               e.target.classList.add('fw-normal', 'link-secondary');
               const post = _.find(watchedState.posts.data, { id: Number(e.target.dataset.id) });
@@ -82,15 +82,17 @@ export default () => {
         }
       });
 
-      document.querySelector('h1').innerHTML = locales('title');
-      document.querySelector('.lead').innerHTML = locales('lead');
-      document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
-      document.querySelector('form button').innerHTML = locales('form.button');
-      document.querySelector('form ~ p').innerHTML = locales('sampleUrl');
-      const footerLink = document.querySelector('footer a');
-      footerLink.innerHTML = locales('footer.link');
-      const footerText = footerLink.parentElement;
-      footerText.childNodes[0].nodeValue = locales('footer.text');
+      viewHandlers.initial(locales);
+
+      // document.querySelector('h1').innerHTML = locales('title');
+      // document.querySelector('.lead').innerHTML = locales('lead');
+      // document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
+      // document.querySelector('form button').innerHTML = locales('form.button');
+      // document.querySelector('form ~ p').innerHTML = locales('sampleUrl');
+      // const footerLink = document.querySelector('footer a');
+      // footerLink.innerHTML = locales('footer.link');
+      // const footerText = footerLink.parentElement;
+      // footerText.childNodes[0].nodeValue = locales('footer.text');
 
       const feedsUpdate = () => {
         const feeds = onChange.target(watchedState.feeds.data);
