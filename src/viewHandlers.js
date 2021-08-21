@@ -53,10 +53,6 @@ const validHandler = (state) => {
   feedback.innerHTML = `${state.feedbackMessage}`;
   feedback.classList.add('text-success');
   feedback.classList.remove('text-danger');
-
-
-
-
 };
 
 const requestingHandler = () => {
