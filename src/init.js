@@ -8,11 +8,7 @@ import rssParser from './rssParser.js';
 import ru from './locales/ru.js';
 import 'bootstrap/dist/js/bootstrap.min.js';
 
-export default () => {
-  const i18nInstance2 = i18next.createInstance();
-
-  i18nInstance2
-    .init({
+export default () => i18next.init({
       lng: 'ru',
       resources: {
         ru,
@@ -173,4 +169,3 @@ export default () => {
         viewHandlers.modal(clickedPost);
       });
     });
-};

@@ -43,6 +43,7 @@ const validHandler = (state) => {
   input.classList.remove('is-invalid');
   input.disabled = false;
   input.value = '';
+  input.focus();
 
   const button = document.querySelector('[name="add"]');
   button.disabled = false;
@@ -52,6 +53,10 @@ const validHandler = (state) => {
   feedback.innerHTML = `${state.feedbackMessage}`;
   feedback.classList.add('text-success');
   feedback.classList.remove('text-danger');
+
+
+
+
 };
 
 const requestingHandler = () => {
