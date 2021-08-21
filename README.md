@@ -20,10 +20,8 @@
 
 ### Setup
 
-$ Setup
+$ make install
 
-<a href="https://asciinema.org/a/dudx7vF12mZd2Gp6ynvATBxQM" target="_blank"><img src="https://asciinema.org/a/dudx7vF12mZd2Gp6ynvATBxQM.svg" width = "200"/></a>
+### Webpack build
 
-$ Webpack build
-
-<a href="https://asciinema.org/a/26vHI0YaQPsgcbVwV88LAUzCx" target="_blank"><img src="https://asciinema.org/a/26vHI0YaQPsgcbVwV88LAUzCx.svg" width = "200"/></a>
+$ make build
