@@ -116,6 +116,8 @@ export default () => i18next.init({
       event.preventDefault();
       const inputValue = event.target.elements.url.value;
 
+      console.log(inputValue);
+
       if (find(watchedState.feeds.data, { link: inputValue })) {
         watchedState.feedbackMessage = locales('feedback.urlExists');
         watchedState.formState = 'urlExists';
