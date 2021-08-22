@@ -26,7 +26,7 @@ export default () => i18next.init({
     });
 
     const schema = yup.object().shape({
-      url: yup.string().url(),
+      url: yup.string().url().matches(/rss/)
       // rss: yup.string().matches(/<rss /),
       // status: yup.number().min(200).max(200),
     });
