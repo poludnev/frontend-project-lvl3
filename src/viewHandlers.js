@@ -38,6 +38,7 @@ const invalidHandler = (state) => {
 };
 
 const validHandler = (state) => {
+  console.log(state);
   const input = document.querySelector('input');
   input.removeAttribute('readonly');
   input.classList.remove('is-invalid');
@@ -98,12 +99,13 @@ const makeFeedLi = (title, description) => {
 };
 
 const renderFeeds = (state) => {
+  console.log('feeds render state', state);
   const feeds = document.querySelector('.feeds');
   feeds.innerHTML = '';
-  if (state.data.length === 0) return;
-  feeds.appendChild(makeCard(state.title));
+  if (state.feeds.data.length === 0) return;
+  feeds.appendChild(makeCard(state.feeds.title));
   const feedsUl = makeUl();
-  const feedsData = state.data;
+  const feedsData = state.feeds.data;
 
   feedsData
     .sort((a, b) => b.id - a.id)
@@ -153,16 +155,16 @@ const makePostsLi = (title, link, id, visited, buttonName) => {
 const renderPosts = (state) => {
   const posts = document.querySelector('.posts');
   posts.innerHTML = '';
-  if (state.data.length === 0) return;
-  posts.appendChild(makeCard(state.title));
+  if (state.length === 0) return;
+  posts.appendChild(makeCard(state.posts.title));
   const postsUl = makeUl();
-  const postsData = state.data;
+  const postsData = state.posts.data;
   postsData
     .sort((a, b) => b.feedId - a.feedId)
     .forEach(({
       title, link, id, visited,
     }) => {
-      postsUl.appendChild(makePostsLi(title, link, id, visited, state.buttonsName));
+      postsUl.appendChild(makePostsLi(title, link, id, visited, state.posts.buttonsName));
     });
   posts.appendChild(postsUl);
 };

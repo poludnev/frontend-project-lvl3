@@ -1,19 +1,17 @@
-export default (responseData) => {
+export default (data) => {
   const parser = new DOMParser();
-  const document = parser.parseFromString(responseData.contents, 'application/xml');
+  const document = parser.parseFromString(data, 'application/xml');
 
-  const cleanCDATA = (string) => (string.includes('CDATA') ? string.slice(9, -2) : string);
+  if (document.querySelector('parsererror')) throw new Error('invalidRSS');
 
-  const title = cleanCDATA(document.querySelector('title').innerHTML);
-  const description = cleanCDATA(document.querySelector('description').innerHTML);
+  const title = document.querySelector('title').textContent;
+  const description = document.querySelector('description').textContent;
 
-  const feed = { title, description };
-
-  const posts = [...document.querySelectorAll('item')].map((item) => ({
-    title: cleanCDATA(item.children[0].innerHTML),
-    description: cleanCDATA(item.children[3].innerHTML),
-    link: item.children[2].innerHTML,
+  const items = [...document.querySelectorAll('item')].map((item) => ({
+    title: item.children[0].textContent,
+    description: item.children[3].textContent,
+    link: item.children[2].textContent,
   }));
 
-  return { feed, posts };
+  return { title, description, items };
 };

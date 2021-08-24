@@ -8,25 +8,27 @@ import rssParser from './rssParser.js';
 import ru from './locales/ru.js';
 import 'bootstrap/dist/js/bootstrap.min.js';
 
-export default () => i18next.init({
-  lng: 'ru',
-  resources: {
-    ru,
-  },
-})
+export default () => i18next
+  .init({
+    lng: 'ru',
+    resources: {
+      ru,
+    },
+  })
   .then((locales) => {
     yup.setLocale({
       string: {
-        url: () => ({
-          name: 'invalidURL',
-          value: locales('feedback.invalidInput'),
-        }),
+        url: () => 'invalidURL',
+        // url: () => ({
+        //   name: 'invalidURL',
+        //   value: locales('feedback.invalidInput'),
+        // }),
         matches: () => ({ name: 'invalidRSS', value: locales('feedback.invalidRSS') }),
       },
     });
 
     const schema = yup.object().shape({
-      url: yup.string().url().matches(/rss/)
+      url: yup.string().url(),
       // rss: yup.string().matches(/<rss /),
       // status: yup.number().min(200).max(200),
     });
@@ -36,35 +38,36 @@ export default () => i18next.init({
       feedbackMessage: '',
       errors: [],
       feeds: {
-        title: locales('feedsTitle'),
+        title: locales('feedsTitle'), // delete as it is unchangable data
         lastsIndex: 0,
         data: [],
-        addFeed(newFeed) {
-          this.data.push({ ...newFeed, id: this.lastsIndex });
-          this.lastsIndex += 1;
-        },
+        // addFeed(newFeed) {
+        //   this.data.push({ ...newFeed, id: this.lastsIndex });
+        //   this.lastsIndex += 1;
+        // },
       },
       posts: {
         title: locales('posts.title'),
         buttonsName: locales('posts.button'),
         lastsIndex: 0,
         data: [],
-        addPost(newPost) {
-          this.data.push({ ...newPost, id: this.lastsIndex, visited: false });
-          this.lastsIndex += 1;
-        },
+        // addPost(newPost) {
+        //   this.data.push({ ...newPost, id: this.lastsIndex, visited: false });
+        //   this.lastsIndex += 1;
+        // },
       },
     };
 
     const watchedState = onChange(state, (path, current) => {
+      console.log('state chang', path, current);
       if (path === 'formState') {
         viewHandlers[current](onChange.target(watchedState));
       }
-      if (path === 'feeds') {
-        viewHandlers.feeds(current);
+      if (path === 'feeds.data') {
+        viewHandlers.feeds(onChange.target(watchedState));
       }
-      if (path === 'posts') {
-        viewHandlers.posts(current);
+      if (path === 'posts.data') {
+        viewHandlers.posts(onChange.target(watchedState));
         const postsLinks = document.querySelectorAll('.posts a');
         postsLinks.forEach((link) => link.addEventListener('click', (e) => {
           e.target.classList.remove('fw-bold');
@@ -92,14 +95,16 @@ export default () => i18next.init({
               const postByFeedId = onChange
                 .target(watchedState.posts.data)
                 .filter((elem) => elem.feedId === id);
-              const { posts } = rssParser(response.data);
-              posts.forEach((post) => {
-                if (!find(postByFeedId, { title: post.title })) {
-                  watchedState.posts.addPost({
-                    title: post.title,
-                    link: post.link,
-                    description: post.description,
+              const { items } = rssParser(response.data.contents);
+              items.forEach(({ title, link, description }) => {
+                if (!find(postByFeedId, { title })) {
+                  watchedState.posts.data.push({
+                    title,
+                    link,
+                    description,
                     feedId: id,
+                    id: watchedState.posts.data.length,
+                    visited: false,
                   });
                 }
               });
@@ -134,17 +139,30 @@ export default () => i18next.init({
             )}`,
           );
         })
-        .then((response) => schema.validate({ rss: response.data.contents, response }))
-        .then(({ response }) => {
-          const { feed, posts } = rssParser(response.data);
+      // .then((response) => schema.validate({ rss: response.data.contents, response }))
+      // .then(({ response }) => {
+        .then((response) => {
+          // console.log(response);
+          // const { feed, posts } = rssParser(response.data);
 
-          watchedState.feeds.addFeed({ ...feed, link: inputValue });
+          const { title, description, items } = rssParser(response.data.contents);
 
-          posts.forEach(({ title, link, description }) => watchedState.posts.addPost({
+          const feedId = watchedState.feeds.data.length;
+          console.log('feedId', feedId);
+
+          watchedState.feeds.data.push({
+            title, description, link: inputValue, id: feedId,
+          });
+
+          console.log('itmes statrt');
+
+          items.forEach(({ title, link, description }) => watchedState.posts.data.push({
             title,
             link,
             description,
-            feedId: watchedState.feeds.lastsIndex - 1,
+            feedId,
+            id: watchedState.posts.data.length,
+            visited: false,
           }));
 
           watchedState.errors = [];
@@ -153,13 +171,20 @@ export default () => i18next.init({
         })
         .catch((e) => {
           watchedState.errors.push(e);
+          console.log('error message', e.message);
+          console.log('error message test', e.test);
+          console.log('e name', e.name);
+
+          console.log('error', JSON.stringify(e));
+
           if (/Network Error/g.exec(e)) {
             watchedState.feedbackMessage = locales('feedback.networkError');
             watchedState.formState = 'networkError';
             return;
           }
-          watchedState.feedbackMessage = e.errors[0].value;
-          watchedState.formState = e.errors[0].name;
+
+          watchedState.feedbackMessage = e.message.value;
+          watchedState.formState = e.message;
         });
     });
 
