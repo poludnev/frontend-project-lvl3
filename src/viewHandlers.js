@@ -1,7 +1,4 @@
-// const formValidHandler = () => {};
-
 const initialHandler = (locales) => {
-  // console.log('initial handler statew', state);
   document.querySelector('h1').innerHTML = locales('title');
   document.querySelector('.lead').innerHTML = locales('lead');
   document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
@@ -12,7 +9,6 @@ const initialHandler = (locales) => {
   const footerLink = document.querySelector('footer a');
   footerLink.innerHTML = locales('footer.link');
   footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
-  // console.log('initial handler finish');
 };
 
 const modalHandler = (post) => {
@@ -26,7 +22,6 @@ const modalHandler = (post) => {
 };
 
 const invalidHandler = () => {
-  // console.log('invalid handler starts');
   const input = document.querySelector('input');
   input.classList.add('is-invalid');
   input.removeAttribute('readonly');
@@ -38,7 +33,6 @@ const invalidHandler = () => {
 };
 
 const validHandler = (state) => {
-  // console.log('valid handler state', state);
   const input = document.querySelector('input');
   input.removeAttribute('readonly');
   input.classList.remove('is-invalid');
@@ -99,7 +93,6 @@ const makeFeedLi = (title, description) => {
 };
 
 const renderFeeds = (state) => {
-  // console.log('feeds render state', state);
   const feeds = document.querySelector('.feeds');
   feeds.innerHTML = '';
   if (state.feeds.length === 0) return;
@@ -109,7 +102,9 @@ const renderFeeds = (state) => {
 
   feedsData
     .sort((a, b) => b.id - a.id)
-    .forEach(({ title, description, link, id }) => {
+    .forEach(({
+      title, description, link, id,
+    }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
   feeds.appendChild(feedsUl);
@@ -159,7 +154,9 @@ const renderPosts = (state) => {
   const postsData = state.posts;
   postsData
     .sort((a, b) => b.feedId - a.feedId)
-    .forEach(({ title, link, id, visited }) => {
+    .forEach(({
+      title, link, id, visited,
+    }) => {
       postsUl.appendChild(makePostsLi(title, link, id, visited, state.texts.postButton));
     });
   posts.appendChild(postsUl);
@@ -203,11 +200,7 @@ const viewHandlers = {
     validHandler(state);
   },
   invalid() {
-    // console.log('invalid state');
     invalidHandler();
-  },
-  networkError(state) {
-    invalidHandler(state);
   },
   feeds(state) {
     renderFeeds(state);
