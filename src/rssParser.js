@@ -1,5 +1,5 @@
 export default (data) => {
-  console.log('parser started');
+  // console.log('parser started');
   const parser = new DOMParser();
   const document = parser.parseFromString(data, 'application/xml');
 
@@ -14,7 +14,7 @@ export default (data) => {
     link: item.children[2].textContent,
   }));
 
-  console.log('parser accomplished');
+  // console.log('parser accomplished');
 
   return { title, description, items };
 };

@@ -1,7 +1,7 @@
-const formValidHandler = () => {};
+// const formValidHandler = () => {};
 
-const initialHandler = (locales, state) => {
-  console.log('initial handler statew', state);
+const initialHandler = (locales) => {
+  // console.log('initial handler statew', state);
   document.querySelector('h1').innerHTML = locales('title');
   document.querySelector('.lead').innerHTML = locales('lead');
   document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
@@ -12,7 +12,7 @@ const initialHandler = (locales, state) => {
   const footerLink = document.querySelector('footer a');
   footerLink.innerHTML = locales('footer.link');
   footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
-  console.log('initial handler finish');
+  // console.log('initial handler finish');
 };
 
 const modalHandler = (post) => {
@@ -42,7 +42,7 @@ const invalidHandler = (state) => {
 };
 
 const validHandler = (state) => {
-  console.log('valid handler state', state);
+  // console.log('valid handler state', state);
   const input = document.querySelector('input');
   input.removeAttribute('readonly');
   input.classList.remove('is-invalid');
@@ -113,7 +113,9 @@ const renderFeeds = (state) => {
 
   feedsData
     .sort((a, b) => b.id - a.id)
-    .forEach(({ title, description, link, id }) => {
+    .forEach(({
+      title, description, link, id,
+    }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
   feeds.appendChild(feedsUl);
@@ -163,7 +165,9 @@ const renderPosts = (state) => {
   const postsData = state.posts;
   postsData
     .sort((a, b) => b.feedId - a.feedId)
-    .forEach(({ title, link, id, visited }) => {
+    .forEach(({
+      title, link, id, visited,
+    }) => {
       postsUl.appendChild(makePostsLi(title, link, id, visited, state.texts.postButton));
     });
   posts.appendChild(postsUl);
@@ -177,10 +181,10 @@ const showErrorMessage = (errorMessage) => {
 };
 
 const erorrHandler = (state) => {
-  console.log('error handler state', state);
-  console.log('error mmessage', state.errors[state.errors.length - 1]);
+  // console.log('error handler state', state);
+  // console.log('error mmessage', state.errors[state.errors.length - 1]);
   const error = state.errors[state.errors.length - 1];
-  console.log('regex', /Network Error/g.exec(error));
+  // console.log('regex', /Network Error/g.exec(error));
   // success: 'RSS успешно загружен',
   //     urlExists: 'RSS уже существует',
   //     invalidInput: 'Ссылка должна быть валидным URL',
@@ -188,23 +192,23 @@ const erorrHandler = (state) => {
   //     networkError: 'Ошибка сети',
   switch (true) {
     case !!/Network Error/g.exec(error):
-      console.log('network erorr');
+      // console.log('network erorr');
       showErrorMessage(state.texts.errors.networkError);
       break;
     case !!/invalidRSS/g.exec(error):
-      console.log('invalid rss error');
+      // console.log('invalid rss error');
       showErrorMessage(state.texts.errors.invalidRSS);
       break;
     case !!/urlExists/g.exec(error):
-      console.log('urlExists error');
+      // console.log('urlExists error');
       showErrorMessage(state.texts.errors.urlExists);
       break;
     case !!/invalidURL/g.exec(error):
-      console.log('invalid input error');
+      // console.log('invalid input error');
       showErrorMessage(state.texts.errors.invalidURL);
       break;
     default:
-      console.log('default erors');
+    // console.log('default erors');
   }
 };
 
@@ -240,7 +244,7 @@ const viewHandlers = {
     modalHandler(post);
   },
   error(state) {
-    console.log('error srate', state);
+    // console.log('error srate', state);
     invalidHandler(state);
     erorrHandler(state);
   },
