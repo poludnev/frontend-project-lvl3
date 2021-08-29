@@ -1,4 +1,7 @@
-const initialHandler = (locales) => {
+const formValidHandler = () => {};
+
+const initialHandler = (locales, state) => {
+  console.log('initial handler statew', state);
   document.querySelector('h1').innerHTML = locales('title');
   document.querySelector('.lead').innerHTML = locales('lead');
   document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
@@ -9,6 +12,7 @@ const initialHandler = (locales) => {
   const footerLink = document.querySelector('footer a');
   footerLink.innerHTML = locales('footer.link');
   footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
+  console.log('initial handler finish');
 };
 
 const modalHandler = (post) => {
@@ -38,7 +42,7 @@ const invalidHandler = (state) => {
 };
 
 const validHandler = (state) => {
-  console.log(state);
+  console.log('valid handler state', state);
   const input = document.querySelector('input');
   input.removeAttribute('readonly');
   input.classList.remove('is-invalid');
@@ -51,7 +55,7 @@ const validHandler = (state) => {
   button.removeAttribute('readonly');
 
   const feedback = document.querySelector('.feedback');
-  feedback.innerHTML = `${state.feedbackMessage}`;
+  feedback.innerHTML = `${state.texts.successMessage}`;
   feedback.classList.add('text-success');
   feedback.classList.remove('text-danger');
 };
@@ -102,16 +106,14 @@ const renderFeeds = (state) => {
   console.log('feeds render state', state);
   const feeds = document.querySelector('.feeds');
   feeds.innerHTML = '';
-  if (state.feeds.data.length === 0) return;
-  feeds.appendChild(makeCard(state.feeds.title));
+  if (state.feeds.length === 0) return;
+  feeds.appendChild(makeCard(state.texts.feeds));
   const feedsUl = makeUl();
-  const feedsData = state.feeds.data;
+  const feedsData = state.feeds;
 
   feedsData
     .sort((a, b) => b.id - a.id)
-    .forEach(({
-      title, description, link, id,
-    }) => {
+    .forEach(({ title, description, link, id }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
   feeds.appendChild(feedsUl);
@@ -156,22 +158,59 @@ const renderPosts = (state) => {
   const posts = document.querySelector('.posts');
   posts.innerHTML = '';
   if (state.length === 0) return;
-  posts.appendChild(makeCard(state.posts.title));
+  posts.appendChild(makeCard(state.texts.posts));
   const postsUl = makeUl();
-  const postsData = state.posts.data;
+  const postsData = state.posts;
   postsData
     .sort((a, b) => b.feedId - a.feedId)
-    .forEach(({
-      title, link, id, visited,
-    }) => {
-      postsUl.appendChild(makePostsLi(title, link, id, visited, state.posts.buttonsName));
+    .forEach(({ title, link, id, visited }) => {
+      postsUl.appendChild(makePostsLi(title, link, id, visited, state.texts.postButton));
     });
   posts.appendChild(postsUl);
 };
 
+const showErrorMessage = (errorMessage) => {
+  const feedback = document.querySelector('.feedback');
+  feedback.innerHTML = `${errorMessage}`;
+  feedback.classList.remove('text-success');
+  feedback.classList.add('text-danger');
+};
+
+const erorrHandler = (state) => {
+  console.log('error handler state', state);
+  console.log('error mmessage', state.errors[state.errors.length - 1]);
+  const error = state.errors[state.errors.length - 1];
+  console.log('regex', /Network Error/g.exec(error));
+  // success: 'RSS успешно загружен',
+  //     urlExists: 'RSS уже существует',
+  //     invalidInput: 'Ссылка должна быть валидным URL',
+  //     invalidRSS: 'Ресурс не содержит валидный RSS',
+  //     networkError: 'Ошибка сети',
+  switch (true) {
+    case !!/Network Error/g.exec(error):
+      console.log('network erorr');
+      showErrorMessage(state.texts.errors.networkError);
+      break;
+    case !!/invalidRSS/g.exec(error):
+      console.log('invalid rss error');
+      showErrorMessage(state.texts.errors.invalidRSS);
+      break;
+    case !!/urlExists/g.exec(error):
+      console.log('urlExists error');
+      showErrorMessage(state.texts.errors.urlExists);
+      break;
+    case !!/invalidURL/g.exec(error):
+      console.log('invalid input error');
+      showErrorMessage(state.texts.errors.invalidURL);
+      break;
+    default:
+      console.log('default erors');
+  }
+};
+
 const viewHandlers = {
-  initial(state) {
-    initialHandler(state);
+  initial(locales, state) {
+    initialHandler(locales, state);
   },
   requesting() {
     requestingHandler();
@@ -199,6 +238,11 @@ const viewHandlers = {
   },
   modal(post) {
     modalHandler(post);
+  },
+  error(state) {
+    console.log('error srate', state);
+    invalidHandler(state);
+    erorrHandler(state);
   },
 };
 
