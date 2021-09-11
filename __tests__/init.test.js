@@ -65,7 +65,7 @@ test('network error', async () => {
   await screen.findByText('Ошибка сети');
 });
 
-test('valid RSS1', async () => {
+test('valid RSS', async () => {
   const rssSource1 = readFileSync(rssExamplePath1, 'utf-8');
   nock('https://hexlet-allorigins.herokuapp.com')
     .get(/example1.rss/)
@@ -76,16 +76,15 @@ test('valid RSS1', async () => {
   userEvent.type(input, 'https://ru.hexlet.io/example1.rss');
   userEvent.click(button);
   await screen.findByText('RSS успешно загружен');
-});
 
-test('valid RSS2', async () => {
+
   const rssSource2 = readFileSync(rssExamplePath2, 'utf-8');
   nock('https://hexlet-allorigins.herokuapp.com')
     .get(/example2.rss/)
     .reply(200, { contents: rssSource2 });
 
-  const input = screen.getByRole('textbox', { name: 'url' });
-  const button = screen.getByRole('button', { name: 'add' });
+  // const input = screen.getByRole('textbox', { name: 'url' });
+  // const button = screen.getByRole('button', { name: 'add' });
   userEvent.type(input, 'https://ru.hexlet.io/example2.rss');
   userEvent.click(button);
   await screen.findByText('RSS успешно загружен');
