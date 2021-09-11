@@ -1,0 +1,26 @@
+{
+  "title": "Lorem ipsum feed for an interval of 1 minutes with 10 item(s)",
+  "description": "This is a constantly updating lorem ipsum feed",
+  "items": [
+    {
+      "title": "Lorem ipsum 2021-09-11T07:25:00Z",
+      "description": "Est enim eiusmod aliquip laborum duis amet ad occaecat laborum laborum dolor.",
+      "link": "http://example.com/test/1631345100"
+    },
+    {
+      "title": "Lorem ipsum 2021-09-11T07:24:00Z",
+      "description": "Esse aliquip nulla non excepteur ipsum mollit amet do amet excepteur minim mollit.",
+      "link": "http://example.com/test/1631345040"
+    },
+    {
+      "title": "Lorem ipsum 2021-09-11T07:23:00Z",
+      "description": "Consectetur consectetur nulla do reprehenderit voluptate irure eiusmod dolore et quis officia aliqua.",
+      "link": "http://example.com/test/1631344980"
+    },
+    {
+      "title": "Lorem ipsum 2021-09-11T07:22:00Z",
+      "description": "Fugiat cillum nisi excepteur minim.",
+      "link": "http://example.com/test/1631344920"
+    }
+  ]
+}

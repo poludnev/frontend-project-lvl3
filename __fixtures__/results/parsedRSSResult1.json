@@ -1,0 +1,21 @@
+{
+  "title": "Новые уроки на Хекслете",
+  "description": "Практические уроки по программированию",
+  "items": [
+    {
+      "title": "HTTP / Java: Веб-технологии",
+      "description": "Цель: Познакомиться с протоколом HTTP, благодаря которому работают веб-сайты и браузеры",
+      "link": "https://ru.hexlet.io/courses/java-web/lessons/http/theory_unit"
+    },
+    {
+      "title": "Nested Forms / Ruby: Реальный Rails",
+      "description": "Цель: Изучить вложенные формы",
+      "link": "https://ru.hexlet.io/courses/rails-real/lessons/nested-forms/theory_unit"
+    },
+    {
+      "title": "Search Forms / Ruby: Реальный Rails",
+      "description": "Цель: Познакомиться с поисковыми формами",
+      "link": "https://ru.hexlet.io/courses/rails-real/lessons/search-forms/theory_unit"
+    }
+  ]
+}
