@@ -9,10 +9,6 @@ export default {
     sampleUrl: 'Пример: https://ru.hexlet.io/lessons.rss',
     feedback: {
       success: 'RSS успешно загружен',
-      // urlExists: 'RSS уже существует',
-      // invalidInput: 'Ссылка должна быть валидным URL',
-      // invalidRSS: 'Ресурс не содержит валидный RSS',
-      // networkError: 'Ошибка сети',
     },
     errors: {
       urlExists: 'RSS уже существует',
@@ -20,10 +16,11 @@ export default {
       invalidRSS: 'Ресурс не содержит валидный RSS',
       networkError: 'Ошибка сети',
     },
-    feedsTitle: 'Фиды',
+    // feedsTitle: 'Фиды',
+    feeds: { title: 'Фиды' },
     posts: {
       title: 'Посты',
-      button: 'Просмотр',
+      previewButton: 'Просмотр',
     },
     modal: {
       readButton: 'Читать полностью',

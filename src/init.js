@@ -1,4 +1,5 @@
-import { find } from 'lodash';
+// import { find } from 'lodash';
+import _ from 'lodash';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import axios from 'axios';
@@ -32,54 +33,68 @@ export default () => i18next
         state: 'initial',
         errors: [],
       },
-      feedbackMessage: '',
-      errors: [],
-      texts: {
-        feeds: locales('feedsTitle'),
-        posts: locales('posts.title'),
-        postButton: locales('posts.button'),
-        successMessage: locales('feedback.success'),
-        errors: {
-          invalidURL: locales('errors.invalidURL'),
-          urlExists: locales('errors.urlExists'),
-          invalidRSS: locales('errors.invalidRSS'),
-          networkError: locales('errors.networkError'),
-        },
-      },
       feeds: [],
       posts: [],
     };
 
     const watchedState = onChange(state, (path, current) => {
-      if (path === 'errors' && current.length > 0) {
-        viewHandlers.error(onChange.target(watchedState));
-        watchedState.rssRequestingProcess.state = 'invalid';
-      }
-      if (path === 'formState') {
-        viewHandlers[current](onChange.target(watchedState));
+      if (path === 'rssRequestingProcess.errors' && current.length > 0) {
+        const errorsTexts = {
+          invalidURL: locales('errors.invalidURL'),
+          urlExists: locales('errors.urlExists'),
+          invalidRSS: locales('errors.invalidRSS'),
+          networkError: locales('errors.networkError'),
+        };
+        viewHandlers.error(current, errorsTexts);
       }
       if (path === 'rssRequestingProcess.state') {
-        viewHandlers[current](onChange.target(watchedState));
+        const feedbackMessages = {
+          success: locales('feedback.success'),
+        };
+        viewHandlers[current](feedbackMessages);
       }
       if (path === 'feeds') {
-        viewHandlers.feeds(onChange.target(watchedState));
+        const feedsTexts = {
+          title: locales('feeds.title'),
+        };
+        viewHandlers.feeds(current, feedsTexts);
       }
       if (path === 'posts') {
-        viewHandlers.posts(onChange.target(watchedState));
-        const postsLinks = document.querySelectorAll('.posts a');
-        postsLinks.forEach((link) => link.addEventListener('click', (e) => {
+        const postsTexts = {
+          title: locales('posts.title'),
+          previewButton: locales('posts.previewButton'),
+        };
+        viewHandlers.posts(current, postsTexts);
+
+        const postsBlock = document.querySelector('.posts');
+        console.log(postsBlock);
+
+        postsBlock.addEventListener('click', (e) => {
+          // e.preventDefault();
+          console.log(e);
+          console.log(e.target);
           e.target.classList.remove('fw-bold');
           e.target.classList.add('fw-normal', 'link-secondary');
-          const post = find(watchedState.posts, { id: Number(e.target.dataset.id) });
+          const post = _.find(watchedState.posts, { id: Number(e.target.dataset.id) });
           post.visited = true;
-        }));
+        });
+
+        // const postsLinks = document.querySelectorAll('.posts a');
+        // postsLinks.forEach((link) =>
+        //   link.addEventListener('click', (e) => {
+        //     e.target.classList.remove('fw-bold');
+        //     e.target.classList.add('fw-normal', 'link-secondary');
+        //     const post = _.find(watchedState.posts, { id: Number(e.target.dataset.id) });
+        //     post.visited = true;
+        //   }),
+        // );
       }
     });
 
-    viewHandlers.initial(locales, state);
+    viewHandlers.initial(locales);
 
     const feedsUpdate = () => {
-      const feeds = onChange.target(watchedState.feeds);
+      const { feeds } = watchedState;
       if (feeds.length > 0) {
         feeds.forEach(({ link: url, id }) => {
           axios
@@ -95,7 +110,7 @@ export default () => i18next
                 .filter((elem) => elem.feedId === id);
               const { items } = rssParser(response.data.contents);
               items.forEach(({ title, link, description }) => {
-                if (!find(postByFeedId, { title })) {
+                if (!_.find(postByFeedId, { title })) {
                   watchedState.posts.push({
                     title,
                     link,
@@ -117,12 +132,16 @@ export default () => i18next
     const form = document.querySelector('form');
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      // console.log('button clicked');
       const inputValue = event.target.elements.url.value;
+      // console.log('input value:', inputValue);
 
       schema
         .validate({ url: inputValue })
         .then(({ url }) => {
-          if (find(watchedState.feeds, { link: url })) throw new Error('urlExists');
+          // console.log('somthing started', url);
+          // console.log('state', watchedState.feeds);
+          if (_.find(watchedState.feeds, { link: url })) throw new Error('urlExists');
 
           watchedState.rssRequestingProcess.state = 'requesting';
           return axios.get(
@@ -132,6 +151,7 @@ export default () => i18next
           );
         })
         .then((response) => {
+          // console.log('response: ', response);
           const feed = rssParser(response.data.contents);
           const feedId = watchedState.feeds.length;
           watchedState.feeds.push({
@@ -141,7 +161,18 @@ export default () => i18next
             id: feedId,
           });
 
-          feed.items.forEach(({ title, link, description }) => watchedState.posts.push({
+          // feed.items.forEach(({ title, link, description }) =>
+          //   watchedState.posts.push({
+          //     title,
+          //     link,
+          //     description,
+          //     feedId,
+          //     id: watchedState.posts.length,
+          //     visited: false,
+          //   }),
+          // );
+
+          const posts = feed.items.map(({ title, link, description }) => ({
             title,
             link,
             description,
@@ -150,18 +181,23 @@ export default () => i18next
             visited: false,
           }));
 
-          watchedState.errors = [];
+          watchedState.posts.push(...posts);
+
+          watchedState.rssRequestingProcess.errors = [];
           watchedState.rssRequestingProcess.state = 'success';
+          // console.log(watchedState);
         })
         .catch((e) => {
-          watchedState.errors.push(e);
+          // console.log('error occured');
+          watchedState.rssRequestingProcess.state = 'invalid';
+          watchedState.rssRequestingProcess.errors.push(e);
         });
     });
 
     const modal = document.querySelector('.modal');
     modal.addEventListener('show.bs.modal', (e) => {
       const clickedButtonId = Number(e.relatedTarget.getAttribute('data-id'));
-      const clickedPost = find(watchedState.posts, { id: clickedButtonId });
+      const clickedPost = _.find(watchedState.posts, { id: clickedButtonId });
       clickedPost.visited = true;
       viewHandlers.modal(clickedPost);
     });

@@ -1,54 +1,39 @@
-import '@testing-library/jest-dom';
+import { readFileSync } from 'fs';
+import { expect, test } from '@jest/globals';
 import nock from 'nock';
 import axios from 'axios';
-import { expect, test } from '@jest/globals';
-import { readFileSync } from 'fs';
+import '@testing-library/jest-dom';
 import testingLibraryDom from '@testing-library/dom';
-import defAdapter from 'axios/lib/adapters/http';
+import defaultAdapter from 'axios/lib/adapters/http';
 import testingLibraryUserEvent from '@testing-library/user-event';
-// import rssParser from '../src/rssParser.js';
+import rssParser from '../src/rssParser.js';
 import app from '../src/init.js';
 
-const getFixturePath = (filename) => `__fixtures__/${filename}`;
+axios.defaults.adapter = defaultAdapter;
 const userEvent = testingLibraryUserEvent.default;
-
-axios.defaults.adapter = defAdapter;
-const rssExamplePath1 = getFixturePath('rssExample1.txt');
-const rssExamplePath2 = getFixturePath('rssExample2.txt');
-
-// const parsedResultPath1 = getFixturePath('results/parsedRSSResult1.json');
-// const parsedResultPath2 = getFixturePath('results/parsedRSSResult2.json');
-
-// test.each`
-//   sourcePath         | resultPath           | structureName
-//   ${xmlExamplePath1} | ${parsedResultPath1} | ${'structure 1'}
-//   ${xmlExamplePath2} | ${parsedResultPath2} | ${'structure 2'}
-// `('When rss structure is the $structureName', ({ sourcePath, resultPath }) => {
-//   const result = readFileSync(resultPath, 'utf-8');
-//   const expected = JSON.parse(result);
-//   const source = readFileSync(sourcePath, 'utf-8');
-//   expect(rssParser(source)).toEqual(expected);
-// });
-
-/*
-порядок тестов, при котором все работает:
-1. network error
-2. valid RSS1
-3. valid RSS2
-4. url exists
-
-Если valid RSS оба теста объединить в один, то падает url exists - не срабатывает "RSS существует".Причем судя по логу, состояне приложения(watchedState) обнуляется.
-
-Если тест network error сделать после valid RSS или urk exists - тест падпает.
-
-  
-Я догадываюсь, что это какая-то особенность работы nock, но упорно не догоняю, в чем именно дело. 
-
-Я как только не переставлял вызовы nock(...).get()..., и в before.each, и отдельно мне тестов - работает только вот в таком виде, как сейчас. Где что идет не так?
-
-*/
-
 const { screen } = testingLibraryDom;
+
+const getFixturePath = (filename) => `__fixtures__/${filename}`;
+
+const xmlExamplePath1 = getFixturePath('xmlExample1.txt');
+const xmlExamplePath2 = getFixturePath('xmlExample2.txt');
+
+const parsedResultPath1 = getFixturePath('rssResult1.json');
+const parsedResultPath2 = getFixturePath('rssResult2.json');
+
+const parsedRSS1 = JSON.parse(readFileSync(parsedResultPath1, 'utf-8'));
+// const parsedRSS2 = JSON.parse(readFileSync(parsedResultPath2, 'utf-8'));
+
+test.each`
+  sourcePath         | resultPath           | structureName
+  ${xmlExamplePath1} | ${parsedResultPath1} | ${'structure 1'}
+  ${xmlExamplePath2} | ${parsedResultPath2} | ${'structure 2'}
+`('When rss structure is the $structureName', ({ sourcePath, resultPath }) => {
+  const result = readFileSync(resultPath, 'utf-8');
+  const expected = JSON.parse(result);
+  const source = readFileSync(sourcePath, 'utf-8');
+  expect(rssParser(source)).toEqual(expected);
+});
 
 beforeEach(async () => {
   const initHtml = readFileSync('index.html').toString();
@@ -57,42 +42,90 @@ beforeEach(async () => {
   await app();
 });
 
+afterEach(() => {
+  // console.log(nock.activeMocks());
+  nock.cleanAll();
+  nock.enableNetConnect();
+});
+
 test('network error', async () => {
   const input = screen.getByRole('textbox', { name: 'url' });
   const button = screen.getByRole('button', { name: 'add' });
   userEvent.type(input, 'https://ru.hexlet.io/lessons.rss');
   userEvent.click(button);
-  await screen.findByText('Ошибка сети');
+  const feedback = await screen.findByText(/Ошибка/, { selector: '.feedback' });
+  expect(feedback.textContent).toBe('Ошибка сети');
 });
 
-test('valid RSS', async () => {
-  const rssSource1 = readFileSync(rssExamplePath1, 'utf-8');
+test('invalid input', async () => {
+  const input = screen.getByRole('textbox', { name: 'url' });
+  const button = screen.getByRole('button', { name: 'add' });
+  userEvent.type(input, 'rss');
+  userEvent.click(button);
+  const feedback = await screen.findByText(/Ссылка должна/, { selector: '.feedback' });
+  expect(feedback.textContent).toBe('Ссылка должна быть валидным URL');
+  // await screen.findByText('Ссылка должна быть валидным URL');
+});
+
+test('invalid RSS', async () => {
+  nock('https://hexlet-allorigins.herokuapp.com')
+    .get(/examplehtmlpage/)
+    .reply(200, document.body.innerHTML);
+  const input = screen.getByRole('textbox', { name: 'url' });
+  const button = screen.getByRole('button', { name: 'add' });
+  // console.log(nock.activeMocks());
+  userEvent.type(input, 'https://examplehtmlpage.com/');
+  userEvent.click(button);
+  // console.log(nock.activeMocks());
+  const feedback = await screen.findByText(/Ресурс/, {
+    selector: '.feedback',
+  });
+  expect(feedback.textContent).toBe('Ресурс не содержит валидный RSS');
+});
+
+test('valid RSS 1', async () => {
+  const rssSource1 = readFileSync(xmlExamplePath1, 'utf-8');
   nock('https://hexlet-allorigins.herokuapp.com')
     .get(/example1.rss/)
     .reply(200, { contents: rssSource1 });
 
   const input = screen.getByRole('textbox', { name: 'url' });
   const button = screen.getByRole('button', { name: 'add' });
+  // console.log(nock.activeMocks());
+
   userEvent.type(input, 'https://ru.hexlet.io/example1.rss');
   userEvent.click(button);
+  // console.log('01 nock is done', nock.isDone());
   await screen.findByText('RSS успешно загружен');
+  await screen.findByText('HTTP / Java: Веб-технологии');
+  await screen.findByText('Search Forms / Ruby: Реальный Rails');
 
+  const viewButtons = screen.getAllByText('Просмотр');
+  viewButtons[0].click();
 
-  const rssSource2 = readFileSync(rssExamplePath2, 'utf-8');
+  const modalTitle = await screen.findByText(/.*/, { selector: '.modal-title' });
+  const modalBody = await screen.findByText(/.*/, { selector: '.modal-body' });
+
+  expect(modalTitle.textContent).toEqual(parsedRSS1.items[0].title);
+  expect(modalBody.textContent).toEqual(parsedRSS1.items[0].description);
+});
+
+test('valid RSS 2', async () => {
+  const rssSource2 = readFileSync(xmlExamplePath2, 'utf-8');
   nock('https://hexlet-allorigins.herokuapp.com')
     .get(/example2.rss/)
     .reply(200, { contents: rssSource2 });
 
-  // const input = screen.getByRole('textbox', { name: 'url' });
-  // const button = screen.getByRole('button', { name: 'add' });
+  const input = screen.getByRole('textbox', { name: 'url' });
+  const button = screen.getByRole('button', { name: 'add' });
   userEvent.type(input, 'https://ru.hexlet.io/example2.rss');
   userEvent.click(button);
   await screen.findByText('RSS успешно загружен');
 });
 
 test('url exists', async () => {
-  nock.cleanAll();
-  const rssSource1 = readFileSync(rssExamplePath1, 'utf-8');
+  // nock.cleanAll();
+  const rssSource1 = readFileSync(xmlExamplePath1, 'utf-8');
   nock('https://hexlet-allorigins.herokuapp.com')
     .get(/exists.rss/)
     .reply(200, { contents: rssSource1 });
@@ -102,27 +135,7 @@ test('url exists', async () => {
   userEvent.type(input, 'https://ru.hexlet.io/exists.rss');
   userEvent.click(button);
   await screen.findByText('RSS успешно загружен');
-
   userEvent.type(input, 'https://ru.hexlet.io/exists.rss');
   userEvent.click(button);
   await screen.findByText('RSS уже существует');
-});
-
-test('invalid RSS', async () => {
-  nock('https://hexlet-allorigins.herokuapp.com')
-    .get(/examplehtmlpage/)
-    .reply(200, document.body.innerHTML);
-  const input = screen.getByRole('textbox', { name: 'url' });
-  const button = screen.getByRole('button', { name: 'add' });
-  userEvent.type(input, 'https://examplehtmlpage.com/');
-  userEvent.click(button);
-  await screen.findByText('Ресурс не содержит валидный RSS');
-});
-
-test('invalid input', async () => {
-  const input = screen.getByRole('textbox', { name: 'url' });
-  const button = screen.getByRole('button', { name: 'add' });
-  userEvent.type(input, 'rss');
-  userEvent.click(button);
-  await screen.findByText('Ссылка должна быть валидным URL');
 });

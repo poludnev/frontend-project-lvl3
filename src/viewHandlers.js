@@ -22,6 +22,7 @@ const modalHandler = (post) => {
 };
 
 const invalidHandler = () => {
+  // console.log('invalid handler started');
   const input = document.querySelector('input');
   input.classList.add('is-invalid');
   input.removeAttribute('readonly');
@@ -32,7 +33,7 @@ const invalidHandler = () => {
   button.removeAttribute('readonly');
 };
 
-const validHandler = (state) => {
+const validHandler = (message) => {
   const input = document.querySelector('input');
   input.removeAttribute('readonly');
   input.classList.remove('is-invalid');
@@ -45,7 +46,7 @@ const validHandler = (state) => {
   button.removeAttribute('readonly');
 
   const feedback = document.querySelector('.feedback');
-  feedback.innerHTML = `${state.texts.successMessage}`;
+  feedback.innerHTML = `${message}`;
   feedback.classList.add('text-success');
   feedback.classList.remove('text-danger');
 };
@@ -92,22 +93,20 @@ const makeFeedLi = (title, description) => {
   return li;
 };
 
-const renderFeeds = (state) => {
-  const feeds = document.querySelector('.feeds');
-  feeds.innerHTML = '';
-  if (state.feeds.length === 0) return;
-  feeds.appendChild(makeCard(state.texts.feeds));
+const renderFeeds = (feeds, feedsTexts) => {
+  const feedsBlock = document.querySelector('.feeds');
+  feedsBlock.innerHTML = '';
+  if (feeds.length === 0) return;
+  feedsBlock.appendChild(makeCard(feedsTexts.title));
   const feedsUl = makeUl();
-  const feedsData = state.feeds;
-
-  feedsData
+  feeds
     .sort((a, b) => b.id - a.id)
     .forEach(({
       title, description, link, id,
     }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
-  feeds.appendChild(feedsUl);
+  feedsBlock.appendChild(feedsUl);
 };
 
 const makePostsLi = (title, link, id, visited, buttonName) => {
@@ -145,44 +144,44 @@ const makePostsLi = (title, link, id, visited, buttonName) => {
   return li;
 };
 
-const renderPosts = (state) => {
-  const posts = document.querySelector('.posts');
-  posts.innerHTML = '';
-  if (state.length === 0) return;
-  posts.appendChild(makeCard(state.texts.posts));
+const renderPosts = (posts, postsTexts) => {
+  const postsBlock = document.querySelector('.posts');
+  postsBlock.innerHTML = '';
+  if (posts.length === 0) return;
+  postsBlock.appendChild(makeCard(postsTexts.title));
   const postsUl = makeUl();
-  const postsData = state.posts;
-  postsData
+  posts
     .sort((a, b) => b.feedId - a.feedId)
     .forEach(({
       title, link, id, visited,
     }) => {
-      postsUl.appendChild(makePostsLi(title, link, id, visited, state.texts.postButton));
+      postsUl.appendChild(makePostsLi(title, link, id, visited, postsTexts.previewButton));
     });
-  posts.appendChild(postsUl);
+  postsBlock.appendChild(postsUl);
 };
 
 const showErrorMessage = (errorMessage) => {
+  // console.log('error meassage shower');
   const feedback = document.querySelector('.feedback');
   feedback.innerHTML = `${errorMessage}`;
   feedback.classList.remove('text-success');
   feedback.classList.add('text-danger');
 };
 
-const erorrHandler = (state) => {
-  const error = state.errors[state.errors.length - 1];
+const erorrHandler = (errors, errorTexts) => {
+  const error = errors[errors.length - 1];
   switch (true) {
-    case !!/Network Error/g.exec(error):
-      showErrorMessage(state.texts.errors.networkError);
+    case !!/Net/g.exec(error):
+      showErrorMessage(errorTexts.networkError);
       break;
     case !!/invalidRSS/g.exec(error):
-      showErrorMessage(state.texts.errors.invalidRSS);
+      showErrorMessage(errorTexts.invalidRSS);
       break;
     case !!/urlExists/g.exec(error):
-      showErrorMessage(state.texts.errors.urlExists);
+      showErrorMessage(errorTexts.urlExists);
       break;
     case !!/invalidURL/g.exec(error):
-      showErrorMessage(state.texts.errors.invalidURL);
+      showErrorMessage(errorTexts.invalidURL);
       break;
     default:
       showErrorMessage('unknown errors');
@@ -190,29 +189,29 @@ const erorrHandler = (state) => {
 };
 
 const viewHandlers = {
-  initial(locales, state) {
-    initialHandler(locales, state);
+  initial(locales) {
+    initialHandler(locales);
   },
   requesting() {
     requestingHandler();
   },
-  success(state) {
-    validHandler(state);
+  success(feedbackMessages) {
+    validHandler(feedbackMessages.success);
   },
   invalid() {
     invalidHandler();
   },
-  feeds(state) {
-    renderFeeds(state);
+  feeds(feeds, feedsTexts) {
+    renderFeeds(feeds, feedsTexts);
   },
-  posts(state) {
-    renderPosts(state);
+  posts(posts, postsTexts) {
+    renderPosts(posts, postsTexts);
   },
   modal(post) {
     modalHandler(post);
   },
-  error(state) {
-    erorrHandler(state);
+  error(errors, errorsTexts) {
+    erorrHandler(errors, errorsTexts);
   },
 };
 
