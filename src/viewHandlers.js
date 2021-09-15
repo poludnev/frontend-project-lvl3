@@ -190,6 +190,7 @@ const handleErrors = (errors, errorTexts) => {
       break;
     default:
       showErrorMessage('unknown errors');
+      console.error(error);
   }
 };
 

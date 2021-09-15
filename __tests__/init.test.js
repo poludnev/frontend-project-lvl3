@@ -22,7 +22,7 @@ const parsedResultPath1 = getFixturePath('rssResult1.json');
 const parsedResultPath2 = getFixturePath('rssResult2.json');
 
 const parsedRSS1 = JSON.parse(readFileSync(parsedResultPath1, 'utf-8'));
-// const parsedRSS2 = JSON.parse(readFileSync(parsedResultPath2, 'utf-8'));
+const rssSource = readFileSync(xmlExamplePath1, 'utf-8');
 
 test.each`
   sourcePath         | resultPath           | structureName
@@ -35,6 +35,11 @@ test.each`
   expect(rssParser(source)).toEqual(expected);
 });
 
+const createNockScope = (scope) => {
+  if (!scope) return;
+  nock('https://hexlet-allorigins.herokuapp.com').get(scope.path).reply(200, scope.replyData);
+};
+
 beforeEach(async () => {
   const initHtml = readFileSync('index.html').toString();
   document.body.innerHTML = initHtml;
@@ -44,55 +49,42 @@ beforeEach(async () => {
 
 afterEach(() => {
   nock.cleanAll();
-  nock.enableNetConnect();
 });
 
-test('network error', async () => {
+const testTitles = ['network error', 'input invalid', 'RSS invalid'];
+
+const scopes = {
+  invalidRSS: { path: /examplehtmlpage/, replyData: document.body.innerHTML },
+  validRSS: { path: /example.rss/, replyData: { contents: rssSource } },
+};
+
+const urls = ['https://ru.hexlet.io/lessons.rss', 'https://rss', 'https://examplehtmlpage.com/'];
+
+test.each`
+  testTitle        | scope                | url        | queryText   | messageText
+  ${testTitles[0]} | ${null}              | ${urls[0]} | ${/Ошибка/} | ${'Ошибка сети'}
+  ${testTitles[1]} | ${null}              | ${urls[1]} | ${/Ссылка/} | ${'Ссылка должна быть валидным URL'}
+  ${testTitles[2]} | ${scopes.invalidRSS} | ${urls[2]} | ${/Ресурс/} | ${'Ресурс не содержит валидный RSS'}
+`('When $testTitle', async ({
+  scope, url, queryText, messageText,
+}) => {
+  createNockScope(scope);
   const input = screen.getByRole('textbox', { name: 'url' });
   const button = screen.getByRole('button', { name: 'add' });
-  userEvent.type(input, 'https://ru.hexlet.io/lessons.rss');
+  userEvent.type(input, url);
   userEvent.click(button);
-  const feedback = await screen.findByText(/Ошибка/, { selector: '.feedback' });
-  expect(feedback).toHaveTextContent('Ошибка сети');
+  const feedback = await screen.findByText(queryText, { selector: '.feedback' });
+  expect(feedback).toHaveTextContent(messageText);
 });
 
-test('invalid input', async () => {
-  const input = screen.getByRole('textbox', { name: 'url' });
-  const button = screen.getByRole('button', { name: 'add' });
-  userEvent.type(input, 'rss');
-  userEvent.click(button);
-  const feedback = await screen.findByText(/Ссылка должна/, { selector: '.feedback' });
-  expect(feedback).toHaveTextContent('Ссылка должна быть валидным URL');
-});
-
-test('invalid RSS', async () => {
-  nock('https://hexlet-allorigins.herokuapp.com')
-    .get(/examplehtmlpage/)
-    .reply(200, document.body.innerHTML);
-  const input = screen.getByRole('textbox', { name: 'url' });
-  const button = screen.getByRole('button', { name: 'add' });
-  userEvent.type(input, 'https://examplehtmlpage.com/');
-  userEvent.click(button);
-  // console.log(nock.activeMocks());
-  const feedback = await screen.findByText(/Ресурс/, {
-    selector: '.feedback',
-  });
-  expect(feedback).toHaveTextContent('Ресурс не содержит валидный RSS');
-});
-
-test('valid RSS 1', async () => {
-  const rssSource1 = readFileSync(xmlExamplePath1, 'utf-8');
-  nock('https://hexlet-allorigins.herokuapp.com')
-    .get(/example1.rss/)
-    .reply(200, { contents: rssSource1 });
+test('when RSS is valid and modal', async () => {
+  createNockScope(scopes.validRSS);
 
   const input = screen.getByRole('textbox', { name: 'url' });
   const button = screen.getByRole('button', { name: 'add' });
-  // console.log(nock.activeMocks());
-
-  userEvent.type(input, 'https://ru.hexlet.io/example1.rss');
+  userEvent.type(input, 'https://ru.hexlet.io/example.rss');
   userEvent.click(button);
-  // console.log('01 nock is done', nock.isDone());
+
   await screen.findByText('RSS успешно загружен');
   await screen.findByText('HTTP / Java: Веб-технологии');
   await screen.findByText('Search Forms / Ruby: Реальный Rails');
@@ -107,34 +99,22 @@ test('valid RSS 1', async () => {
   expect(modalBody).toHaveTextContent(parsedRSS1.items[0].description);
 });
 
-test('valid RSS 2', async () => {
-  const rssSource2 = readFileSync(xmlExamplePath2, 'utf-8');
-  nock('https://hexlet-allorigins.herokuapp.com')
-    .get(/example2.rss/)
-    .reply(200, { contents: rssSource2 });
+test('When url already exists', async () => {
+  createNockScope(scopes.validRSS);
 
   const input = screen.getByRole('textbox', { name: 'url' });
   const button = screen.getByRole('button', { name: 'add' });
-  userEvent.type(input, 'https://ru.hexlet.io/example2.rss');
+  userEvent.type(input, 'https://ru.hexlet.io/example.rss');
   userEvent.click(button);
-  const feedback = await screen.findByText('RSS успешно загружен');
-  expect(feedback).not.toBeUndefined();
-});
 
-test('url exists', async () => {
-  // nock.cleanAll();
-  const rssSource1 = readFileSync(xmlExamplePath1, 'utf-8');
-  nock('https://hexlet-allorigins.herokuapp.com')
-    .get(/exists.rss/)
-    .reply(200, { contents: rssSource1 });
+  let feedback = await screen.findByText(/.{1,}/, { selector: '.feedback' });
+  expect(feedback).toHaveTextContent('RSS успешно загружен');
 
-  const input = screen.getByRole('textbox', { name: 'url' });
-  const button = screen.getByRole('button', { name: 'add' });
-  userEvent.type(input, 'https://ru.hexlet.io/exists.rss');
+  userEvent.type(input, 'https://ru.hexlet.io/example.rss');
   userEvent.click(button);
-  await screen.findByText('RSS успешно загружен');
-  userEvent.type(input, 'https://ru.hexlet.io/exists.rss');
-  userEvent.click(button);
-  const feedback = await screen.findByText('RSS уже существует');
-  expect(feedback).not.toBeUndefined();
+
+  setTimeout(async () => {
+    feedback = await screen.findByText(/.{1,}/, { selector: '.feedback' });
+    expect(feedback).toHaveTextContent('RSS уже существует');
+  }, 100);
 });
