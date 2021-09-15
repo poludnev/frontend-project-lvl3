@@ -43,7 +43,6 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
-  // console.log(nock.activeMocks());
   nock.cleanAll();
   nock.enableNetConnect();
 });
@@ -63,8 +62,7 @@ test('invalid input', async () => {
   userEvent.type(input, 'rss');
   userEvent.click(button);
   const feedback = await screen.findByText(/Ссылка должна/, { selector: '.feedback' });
-  expect(feedback.textContent).toBe('Ссылка должна быть валидным URL');
-  // await screen.findByText('Ссылка должна быть валидным URL');
+  expect(feedback).toHaveTextContent('Ссылка должна быть валидным URL');
 });
 
 test('invalid RSS', async () => {
@@ -73,14 +71,13 @@ test('invalid RSS', async () => {
     .reply(200, document.body.innerHTML);
   const input = screen.getByRole('textbox', { name: 'url' });
   const button = screen.getByRole('button', { name: 'add' });
-  // console.log(nock.activeMocks());
   userEvent.type(input, 'https://examplehtmlpage.com/');
   userEvent.click(button);
   // console.log(nock.activeMocks());
   const feedback = await screen.findByText(/Ресурс/, {
     selector: '.feedback',
   });
-  expect(feedback.textContent).toBe('Ресурс не содержит валидный RSS');
+  expect(feedback).toHaveTextContent('Ресурс не содержит валидный RSS');
 });
 
 test('valid RSS 1', async () => {
@@ -106,8 +103,8 @@ test('valid RSS 1', async () => {
   const modalTitle = await screen.findByText(/.*/, { selector: '.modal-title' });
   const modalBody = await screen.findByText(/.*/, { selector: '.modal-body' });
 
-  expect(modalTitle.textContent).toEqual(parsedRSS1.items[0].title);
-  expect(modalBody.textContent).toEqual(parsedRSS1.items[0].description);
+  expect(modalTitle).toHaveTextContent(parsedRSS1.items[0].title);
+  expect(modalBody).toHaveTextContent(parsedRSS1.items[0].description);
 });
 
 test('valid RSS 2', async () => {
@@ -120,7 +117,8 @@ test('valid RSS 2', async () => {
   const button = screen.getByRole('button', { name: 'add' });
   userEvent.type(input, 'https://ru.hexlet.io/example2.rss');
   userEvent.click(button);
-  await screen.findByText('RSS успешно загружен');
+  const feedback = await screen.findByText('RSS успешно загружен');
+  expect(feedback).not.toBeUndefined();
 });
 
 test('url exists', async () => {
@@ -137,5 +135,6 @@ test('url exists', async () => {
   await screen.findByText('RSS успешно загружен');
   userEvent.type(input, 'https://ru.hexlet.io/exists.rss');
   userEvent.click(button);
-  await screen.findByText('RSS уже существует');
+  const feedback = await screen.findByText('RSS уже существует');
+  expect(feedback).not.toBeUndefined();
 });
