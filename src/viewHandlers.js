@@ -11,18 +11,19 @@ const initialHandler = (locales) => {
   footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
 };
 
-const modalHandler = (post) => {
-  document.querySelector('.modal-title').innerHTML = post.title;
-  document.querySelector('.modal-body').innerHTML = post.description;
-  document.querySelector('.full-article').href = post.link;
+const renderModal = ({
+  title, description, link, id,
+}) => {
+  document.querySelector('.modal-title').innerHTML = title;
+  document.querySelector('.modal-body').innerHTML = description;
+  document.querySelector('.full-article').href = link;
 
-  const a = document.querySelector(`[data-id="${post.id}"]`);
+  const a = document.querySelector(`[data-id="${id}"]`);
   a.classList.remove('fw-bold');
   a.classList.add('fw-normal', 'link-secondary');
 };
 
 const invalidHandler = () => {
-  // console.log('invalid handler started');
   const input = document.querySelector('input');
   input.classList.add('is-invalid');
   input.removeAttribute('readonly');
@@ -63,6 +64,14 @@ const requestingHandler = () => {
 
   const feedback = document.querySelector('.feedback');
   feedback.innerHTML = '';
+};
+
+const updatePostsUI = (visitedPostsID) => {
+  visitedPostsID.forEach((elem) => {
+    const post = document.querySelector(`[data-id="${elem}"]`);
+    post.classList.add('fw-nomal', 'link-secondary');
+    post.classList.remove('fw-bold');
+  });
 };
 
 const makeCard = (title) => {
@@ -124,27 +133,23 @@ const makePostsLi = (title, link, id, visited, buttonName) => {
   a.dataset.id = id;
   a.target = '_blank';
   a.rel = 'noopener noreferrer';
-  if (visited) {
-    a.classList.add('fw-nomal', 'link-secondary');
-  } else {
-    a.classList.add('fw-bold');
-  }
+  a.classList.add('fw-bold');
+  a.textContent = `${title}`;
 
-  a.innerHTML = `${title}`;
   const button = document.createElement('button');
   button.type = 'button';
   button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
   button.dataset.id = id;
   button.dataset.bsToggle = 'modal';
   button.dataset.bsTarget = '#exampleModal';
-  button.innerHTML = buttonName;
+  button.textContent = buttonName;
 
   li.appendChild(a);
   li.appendChild(button);
   return li;
 };
 
-const renderPosts = (posts, postsTexts) => {
+const renderPosts = (posts, postsTexts, postsUI) => {
   const postsBlock = document.querySelector('.posts');
   postsBlock.innerHTML = '';
   if (posts.length === 0) return;
@@ -158,17 +163,17 @@ const renderPosts = (posts, postsTexts) => {
       postsUl.appendChild(makePostsLi(title, link, id, visited, postsTexts.previewButton));
     });
   postsBlock.appendChild(postsUl);
+  updatePostsUI(postsUI);
 };
 
 const showErrorMessage = (errorMessage) => {
-  // console.log('error meassage shower');
   const feedback = document.querySelector('.feedback');
   feedback.innerHTML = `${errorMessage}`;
   feedback.classList.remove('text-success');
   feedback.classList.add('text-danger');
 };
 
-const erorrHandler = (errors, errorTexts) => {
+const handleErrors = (errors, errorTexts) => {
   const error = errors[errors.length - 1];
   switch (true) {
     case !!/Net/g.exec(error):
@@ -189,29 +194,32 @@ const erorrHandler = (errors, errorTexts) => {
 };
 
 const viewHandlers = {
-  initial(locales) {
+  initialise(locales) {
     initialHandler(locales);
   },
-  requesting() {
+  renderRequest() {
     requestingHandler();
   },
-  success(feedbackMessages) {
+  renderSuccess(feedbackMessages) {
     validHandler(feedbackMessages.success);
   },
-  invalid() {
+  renderInvalid() {
     invalidHandler();
   },
-  feeds(feeds, feedsTexts) {
+  renderFeeds(feeds, feedsTexts) {
     renderFeeds(feeds, feedsTexts);
   },
-  posts(posts, postsTexts) {
-    renderPosts(posts, postsTexts);
+  renderPosts(posts, postsTexts, postsUI) {
+    renderPosts(posts, postsTexts, postsUI);
   },
-  modal(post) {
-    modalHandler(post);
+  renderModal(post) {
+    renderModal(post);
   },
-  error(errors, errorsTexts) {
-    erorrHandler(errors, errorsTexts);
+  handleErrors(errors, errorsTexts) {
+    handleErrors(errors, errorsTexts);
+  },
+  updatePostsUI(visitedPostsID) {
+    updatePostsUI(visitedPostsID);
   },
 };
 

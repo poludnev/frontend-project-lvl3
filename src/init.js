@@ -9,6 +9,11 @@ import rssParser from './rssParser.js';
 import ru from './locales/ru.js';
 import 'bootstrap/dist/js/bootstrap.min.js';
 
+const encodeURL = (url) => {
+  const base = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
+  return `${base}${encodeURIComponent(url)}`;
+};
+
 export default () => i18next
   .init({
     lng: 'ru',
@@ -23,18 +28,23 @@ export default () => i18next
       },
     });
 
-    const schema = yup.object().shape({
-      url: yup.string().url(),
-    });
-
     const state = {
       rssRequestingProcess: {
         validationState: 'valid',
         state: 'initial',
         errors: [],
       },
+      modal: {
+        title: '',
+        description: '',
+        link: '',
+        id: null,
+      },
       feeds: [],
       posts: [],
+      uiState: {
+        visitedPosts: [],
+      },
     };
 
     const watchedState = onChange(state, (path, current) => {
@@ -45,83 +55,67 @@ export default () => i18next
           invalidRSS: locales('errors.invalidRSS'),
           networkError: locales('errors.networkError'),
         };
-        viewHandlers.error(current, errorsTexts);
+        viewHandlers.handleErrors(current, errorsTexts);
       }
       if (path === 'rssRequestingProcess.state') {
         const feedbackMessages = {
           success: locales('feedback.success'),
         };
-        viewHandlers[current](feedbackMessages);
+        if (current === 'requesting') {
+          viewHandlers.renderRequest(feedbackMessages);
+        }
+        if (current === 'invalid') {
+          viewHandlers.renderInvalid(feedbackMessages);
+        }
+        if (current === 'success') {
+          viewHandlers.renderSuccess(feedbackMessages);
+        }
       }
       if (path === 'feeds') {
         const feedsTexts = {
           title: locales('feeds.title'),
         };
-        viewHandlers.feeds(current, feedsTexts);
+        viewHandlers.renderFeeds(current, feedsTexts);
       }
       if (path === 'posts') {
         const postsTexts = {
           title: locales('posts.title'),
           previewButton: locales('posts.previewButton'),
         };
-        viewHandlers.posts(current, postsTexts);
-
-        const postsBlock = document.querySelector('.posts');
-        console.log(postsBlock);
-
-        postsBlock.addEventListener('click', (e) => {
-          // e.preventDefault();
-          console.log(e);
-          console.log(e.target);
-          e.target.classList.remove('fw-bold');
-          e.target.classList.add('fw-normal', 'link-secondary');
-          const post = _.find(watchedState.posts, { id: Number(e.target.dataset.id) });
-          post.visited = true;
-        });
-
-        // const postsLinks = document.querySelectorAll('.posts a');
-        // postsLinks.forEach((link) =>
-        //   link.addEventListener('click', (e) => {
-        //     e.target.classList.remove('fw-bold');
-        //     e.target.classList.add('fw-normal', 'link-secondary');
-        //     const post = _.find(watchedState.posts, { id: Number(e.target.dataset.id) });
-        //     post.visited = true;
-        //   }),
-        // );
+        viewHandlers.renderPosts(current, postsTexts, watchedState.uiState.visitedPosts);
+      }
+      if (path === 'uiState.visitedPosts') {
+        viewHandlers.updatePostsUI(current);
+      }
+      if (path === 'modal') {
+        viewHandlers.renderModal(current);
       }
     });
 
-    viewHandlers.initial(locales);
+    viewHandlers.initialise(locales);
 
     const feedsUpdate = () => {
       const { feeds } = watchedState;
       if (feeds.length > 0) {
         feeds.forEach(({ link: url, id }) => {
-          axios
-            .get(
-              `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(
-                url,
-              )}`,
-            )
-            .then((response) => schema.validate({ status: response.status, response }))
-            .then(({ response }) => {
-              const postByFeedId = onChange
-                .target(watchedState.posts)
-                .filter((elem) => elem.feedId === id);
-              const { items } = rssParser(response.data.contents);
-              items.forEach(({ title, link, description }) => {
-                if (!_.find(postByFeedId, { title })) {
-                  watchedState.posts.push({
-                    title,
-                    link,
-                    description,
-                    feedId: id,
-                    id: watchedState.posts.length,
-                    visited: false,
-                  });
-                }
-              });
-            });
+          axios.get(encodeURL(url)).then((response) => {
+            const filtredPosts = [...watchedState.posts].filter((elem) => elem.feedId === id);
+
+            const { items } = rssParser(response.data.contents);
+
+            const newItems = items
+              .filter(({ title }) => !_.find(filtredPosts, { title }))
+              .map(({ title, link, description }) => ({
+                title,
+                link,
+                description,
+                feedsId: id,
+                id: Number(_.uniqueId()),
+                visited: false,
+              }));
+
+            watchedState.posts.push(...newItems);
+          });
         });
       }
       return setTimeout(feedsUpdate, 5000);
@@ -132,26 +126,24 @@ export default () => i18next
     const form = document.querySelector('form');
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      // console.log('button clicked');
-      const inputValue = event.target.elements.url.value;
-      // console.log('input value:', inputValue);
 
-      schema
+      const inputValue = event.target.elements.url.value;
+      const feedsLinks = [...watchedState.feeds].map(({ link }) => link);
+
+      yup
+        .object()
+        .shape({
+          url: yup
+            .string()
+            .url()
+            .notOneOf(feedsLinks, () => 'urlExists'),
+        })
         .validate({ url: inputValue })
         .then(({ url }) => {
-          // console.log('somthing started', url);
-          // console.log('state', watchedState.feeds);
-          if (_.find(watchedState.feeds, { link: url })) throw new Error('urlExists');
-
           watchedState.rssRequestingProcess.state = 'requesting';
-          return axios.get(
-            `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(
-              url,
-            )}`,
-          );
+          return axios.get(encodeURL(url));
         })
         .then((response) => {
-          // console.log('response: ', response);
           const feed = rssParser(response.data.contents);
           const feedId = watchedState.feeds.length;
           watchedState.feeds.push({
@@ -161,23 +153,12 @@ export default () => i18next
             id: feedId,
           });
 
-          // feed.items.forEach(({ title, link, description }) =>
-          //   watchedState.posts.push({
-          //     title,
-          //     link,
-          //     description,
-          //     feedId,
-          //     id: watchedState.posts.length,
-          //     visited: false,
-          //   }),
-          // );
-
           const posts = feed.items.map(({ title, link, description }) => ({
             title,
             link,
             description,
             feedId,
-            id: watchedState.posts.length,
+            id: Number(_.uniqueId()),
             visited: false,
           }));
 
@@ -185,10 +166,8 @@ export default () => i18next
 
           watchedState.rssRequestingProcess.errors = [];
           watchedState.rssRequestingProcess.state = 'success';
-          // console.log(watchedState);
         })
         .catch((e) => {
-          // console.log('error occured');
           watchedState.rssRequestingProcess.state = 'invalid';
           watchedState.rssRequestingProcess.errors.push(e);
         });
@@ -199,6 +178,22 @@ export default () => i18next
       const clickedButtonId = Number(e.relatedTarget.getAttribute('data-id'));
       const clickedPost = _.find(watchedState.posts, { id: clickedButtonId });
       clickedPost.visited = true;
-      viewHandlers.modal(clickedPost);
+      const {
+        title, description, link, id,
+      } = clickedPost;
+      watchedState.modal = {
+        title,
+        description,
+        link,
+        id,
+      };
+    });
+
+    const postsBlock = document.querySelector('.posts');
+    postsBlock.addEventListener('click', (e) => {
+      e.target.classList.remove('fw-bold');
+      e.target.classList.add('fw-normal', 'link-secondary');
+      const postId = Number(e.target.dataset.id);
+      watchedState.uiState.visitedPosts.push(postId);
     });
   });

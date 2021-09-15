@@ -54,7 +54,7 @@ test('network error', async () => {
   userEvent.type(input, 'https://ru.hexlet.io/lessons.rss');
   userEvent.click(button);
   const feedback = await screen.findByText(/Ошибка/, { selector: '.feedback' });
-  expect(feedback.textContent).toBe('Ошибка сети');
+  expect(feedback).toHaveTextContent('Ошибка сети');
 });
 
 test('invalid input', async () => {
