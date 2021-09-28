@@ -11,9 +11,19 @@ const initialHandler = (locales) => {
   footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
 };
 
-const renderModal = ({
-  title, description, link, id,
-}) => {
+const renderPopup = (state) => {
+  const {
+    uiState: {
+      popup: { postId },
+    },
+    posts,
+  } = state;
+
+  const [postData] = posts.filter((post) => post.id === postId);
+  const {
+    title, description, link, id,
+  } = postData;
+
   document.querySelector('.modal-title').innerHTML = title;
   document.querySelector('.modal-body').innerHTML = description;
   document.querySelector('.full-article').href = link;
@@ -213,8 +223,8 @@ const viewHandlers = {
   renderPosts(posts, postsTexts, postsUI) {
     renderPosts(posts, postsTexts, postsUI);
   },
-  renderModal(post) {
-    renderModal(post);
+  renderPopup(state) {
+    renderPopup(state);
   },
   handleErrors(errors, errorsTexts) {
     handleErrors(errors, errorsTexts);

@@ -1,14 +1,15 @@
 import _ from 'lodash';
 import onChange from 'on-change';
-import * as yup from 'yup';
 import axios from 'axios';
 import i18next from 'i18next';
+import validateURL from './validator.js';
 import viewHandlers from './viewHandlers.js';
 import rssParser from './rssParser.js';
 import ru from './locales/ru.js';
+
 import 'bootstrap/dist/js/bootstrap.min.js';
 
-const encodeURL = (url) => {
+const addProxy = (url) => {
   const base = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
   return `${base}${encodeURIComponent(url)}`;
 };
@@ -21,11 +22,8 @@ export default () => i18next
     },
   })
   .then((locales) => {
-    yup.setLocale({
-      string: {
-        url: () => 'invalidURL',
-      },
-    });
+    const form = document.querySelector('form');
+    const postsBlock = document.querySelector('.posts');
 
     const state = {
       rssRequestingProcess: {
@@ -38,16 +36,20 @@ export default () => i18next
         description: '',
         link: '',
         id: null,
+        postId: null,
       },
       feeds: [],
       posts: [],
       uiState: {
         visitedPosts: [],
+        popup: { postId: null },
       },
     };
 
     const watchedState = onChange(state, (path, current) => {
+      console.log('path', path);
       if (path === 'rssRequestingProcess.errors' && current.length > 0) {
+        console.log('watched state errors', current);
         const errorsTexts = {
           invalidURL: locales('errors.invalidURL'),
           urlExists: locales('errors.urlExists'),
@@ -81,13 +83,16 @@ export default () => i18next
           title: locales('posts.title'),
           previewButton: locales('posts.previewButton'),
         };
+          // console.log(watchedState.uiState.visitedPosts);
         viewHandlers.renderPosts(current, postsTexts, watchedState.uiState.visitedPosts);
       }
       if (path === 'uiState.visitedPosts') {
+        // console.log('uiState visited posts', current);
         viewHandlers.updatePostsUI(current);
       }
-      if (path === 'modal') {
-        viewHandlers.renderModal(current);
+      if (path === 'uiState.popup.postId') {
+        console.log('path modal');
+        viewHandlers.renderPopup(watchedState);
       }
     });
 
@@ -97,50 +102,37 @@ export default () => i18next
       const { feeds } = watchedState;
       if (feeds.length > 0) {
         feeds.forEach(({ link: url, id }) => {
-          axios.get(encodeURL(url)).then((response) => {
-            const filtredPosts = [...watchedState.posts].filter((elem) => elem.feedId === id);
+          axios.get(addProxy(url)).then((response) => {
+            const postsByFeedId = [...watchedState.posts].filter((elem) => elem.feedId === id);
 
             const { items } = rssParser(response.data.contents);
 
-            const newItems = items
-              .filter(({ title }) => !_.find(filtredPosts, { title }))
-              .map(({ title, link, description }) => ({
-                title,
-                link,
-                description,
-                feedsId: id,
-                id: Number(_.uniqueId()),
-                visited: false,
-              }));
+            const newItems = _.differenceWith(
+              items,
+              postsByFeedId,
+              (item, post) => item.title === post.title,
+            );
 
             watchedState.posts.push(...newItems);
           });
         });
       }
-      return setTimeout(feedsUpdate, 5000);
+      const timeOutDelay = 5000;
+      return setTimeout(feedsUpdate, timeOutDelay);
     };
 
     feedsUpdate();
 
-    const form = document.querySelector('form');
     form.addEventListener('submit', (event) => {
       event.preventDefault();
 
       const inputValue = event.target.elements.url.value;
       const feedsLinks = [...watchedState.feeds].map(({ link }) => link);
 
-      yup
-        .object()
-        .shape({
-          url: yup
-            .string()
-            .url()
-            .notOneOf(feedsLinks, () => 'urlExists'),
-        })
-        .validate({ url: inputValue })
+      validateURL(feedsLinks, inputValue)
         .then(({ url }) => {
           watchedState.rssRequestingProcess.state = 'requesting';
-          return axios.get(encodeURL(url));
+          return axios.get(addProxy(url));
         })
         .then((response) => {
           const feed = rssParser(response.data.contents);
@@ -172,27 +164,11 @@ export default () => i18next
         });
     });
 
-    const modal = document.querySelector('.modal');
-    modal.addEventListener('show.bs.modal', (e) => {
-      const clickedButtonId = Number(e.relatedTarget.getAttribute('data-id'));
-      const clickedPost = _.find(watchedState.posts, { id: clickedButtonId });
-      clickedPost.visited = true;
-      const {
-        title, description, link, id,
-      } = clickedPost;
-      watchedState.modal = {
-        title,
-        description,
-        link,
-        id,
-      };
-    });
-
-    const postsBlock = document.querySelector('.posts');
     postsBlock.addEventListener('click', (e) => {
-      e.target.classList.remove('fw-bold');
-      e.target.classList.add('fw-normal', 'link-secondary');
+      console.log('post block click', e.target, e.target.type);
       const postId = Number(e.target.dataset.id);
+      if (e.target.type === 'button') watchedState.uiState.popup.postId = postId;
+      if (_.isNaN(postId) || watchedState.uiState.visitedPosts.includes(postId)) return;
       watchedState.uiState.visitedPosts.push(postId);
     });
   });
