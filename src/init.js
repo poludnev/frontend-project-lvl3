@@ -28,7 +28,7 @@ export default () => i18next
     const state = {
       rssRequestingProcess: {
         validationState: 'valid',
-        state: 'initial',
+        requestingState: 'initial',
         errors: [],
       },
       modal: {
@@ -56,14 +56,14 @@ export default () => i18next
         };
         viewHandlers.handleErrors(current, errorsTexts);
       }
-      if (path === 'rssRequestingProcess.state') {
+      if (path === 'rssRequestingProcess.requestingState') {
         const feedbackMessages = {
           success: locales('feedback.success'),
         };
         if (current === 'requesting') {
           viewHandlers.renderRequest(feedbackMessages);
         }
-        if (current === 'invalid') {
+        if (current === 'failed') {
           viewHandlers.renderInvalid(feedbackMessages);
         }
         if (current === 'success') {
@@ -127,7 +127,8 @@ export default () => i18next
 
       validateURL(feedsLinks, inputValue)
         .then(({ url }) => {
-          watchedState.rssRequestingProcess.state = 'requesting';
+          watchedState.rssRequestingProcess.validationState = 'valid';
+          watchedState.rssRequestingProcess.requestingState = 'requesting';
           return axios.get(addProxy(url));
         })
         .then((response) => {
@@ -151,11 +152,12 @@ export default () => i18next
 
           watchedState.posts.push(...posts);
 
-          watchedState.rssRequestingProcess.state = 'success';
+          watchedState.rssRequestingProcess.requestingState = 'success';
           watchedState.rssRequestingProcess.errors = [];
         })
         .catch((e) => {
-          watchedState.rssRequestingProcess.state = 'invalid';
+          watchedState.rssRequestingProcess.validationState = 'invalid';
+          watchedState.rssRequestingProcess.requestingState = 'failed';
           watchedState.rssRequestingProcess.errors.push(e);
         });
     });
