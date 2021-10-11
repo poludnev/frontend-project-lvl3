@@ -1,12 +1,11 @@
 import * as yup from 'yup';
-import validationDictionary from './locales/validationDictionary.js';
 
-export default (values, url) => {
-  yup.setLocale(validationDictionary);
+export default (values, url, locales) => {
+  yup.setLocale(locales);
   return yup
     .object()
     .shape({
-      url: yup.string().url().notOneOf(values),
+      url: yup.string().required().url().notOneOf(values),
     })
     .validate({ url });
 };

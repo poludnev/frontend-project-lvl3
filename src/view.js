@@ -1,4 +1,5 @@
 const initialHandler = (locales) => {
+  console.log('initia;l handler started');
   document.querySelector('h1').innerHTML = locales('title');
   document.querySelector('.lead').innerHTML = locales('lead');
   document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
@@ -20,9 +21,7 @@ const renderPopup = (state) => {
   } = state;
 
   const [postData] = posts.filter((post) => post.id === postId);
-  const {
-    title, description, link, id,
-  } = postData;
+  const { title, description, link, id } = postData;
 
   document.querySelector('.modal-title').innerHTML = title;
   document.querySelector('.modal-body').innerHTML = description;
@@ -63,6 +62,7 @@ const validHandler = (message) => {
 };
 
 const requestingHandler = () => {
+  console.log('requestinghandler run');
   const input = document.querySelector('input');
   input.classList.remove('is-invalid');
   input.disabled = true;
@@ -120,9 +120,7 @@ const renderFeeds = (feeds, feedsTexts) => {
   const feedsUl = makeUl();
   feeds
     .sort((a, b) => b.id - a.id)
-    .forEach(({
-      title, description, link, id,
-    }) => {
+    .forEach(({ title, description, link, id }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
   feedsBlock.appendChild(feedsUl);
@@ -166,10 +164,8 @@ const renderPosts = (posts, postsTexts, postsUI) => {
   postsBlock.appendChild(makeCard(postsTexts.title));
   const postsUl = makeUl();
   posts
-    .sort((a, b) => b.feedId - a.feedId)
-    .forEach(({
-      title, link, id, visited,
-    }) => {
+    .sort((a, b) => b.feedId - a.feedIdb)
+    .forEach(({ title, link, id, visited }) => {
       postsUl.appendChild(makePostsLi(title, link, id, visited, postsTexts.previewButton));
     });
   postsBlock.appendChild(postsUl);
@@ -198,40 +194,91 @@ const handleErrors = (errors, errorTexts) => {
     case !!/invalidURL/g.exec(error):
       showErrorMessage(errorTexts.invalidURL);
       break;
+    case !!/emptyInput/g.exec(error):
+      showErrorMessage(errorTexts.invalidURL);
+      break;
     default:
       showErrorMessage('unknown errors');
       console.error(error);
   }
 };
 
-const viewHandlers = {
-  initialise(locales) {
-    initialHandler(locales);
-  },
-  renderRequest() {
-    requestingHandler();
-  },
-  renderSuccess(feedbackMessages) {
-    validHandler(feedbackMessages.success);
-  },
-  renderInvalid() {
-    invalidHandler();
-  },
-  renderFeeds(feeds, feedsTexts) {
-    renderFeeds(feeds, feedsTexts);
-  },
-  renderPosts(posts, postsTexts, postsUI) {
-    renderPosts(posts, postsTexts, postsUI);
-  },
-  renderPopup(state) {
-    renderPopup(state);
-  },
-  handleErrors(errors, errorsTexts) {
-    handleErrors(errors, errorsTexts);
-  },
-  updatePostsUI(visitedPostsID) {
-    updatePostsUI(visitedPostsID);
-  },
-};
+export default (watchedState, path, current, locales) => {
+  // console.log('view launched, watchedState:', watchedState);
+  // console.log('view launched, path:', path, current);
+  // if (path === 'rssRequestingProcess.errors' && current.length > 0) {
+  //   const errorsTexts = {
+  //     invalidURL: locales('errors.invalidURL'),
+  //     urlExists: locales('errors.urlExists'),
+  //     invalidRSS: locales('errors.invalidRSS'),
+  //     networkError: locales('errors.networkError'),
+  //   };
+  //   handleErrors(current, errorsTexts);
+  // }
 
-export default viewHandlers;
+  if (/errors/g.exec(path)) {
+    // console.log('view launched, Errors', watchedState);
+    // console.log(current);
+    if (current.length === 0) return;
+    const errorsTexts = {
+      invalidURL: locales('errors.invalidURL'),
+      urlExists: locales('errors.urlExists'),
+      invalidRSS: locales('errors.invalidRSS'),
+      networkError: locales('errors.networkError'),
+    };
+    handleErrors(current, errorsTexts);
+  }
+
+  if (path === 'form.validationState') {
+    if (current === 'initial') {
+      initialHandler(locales);
+    }
+    if (current === 'invalid') {
+      invalidHandler();
+    }
+    // if (current === 'requesting') {
+    //   requestingHandler();
+    // }
+    // if (current === 'failed') {
+    //   invalidHandler();
+    // }
+    // if (current === 'success') {
+    //   validHandler(locales('feedback.success'));
+    // }
+  }
+
+  if (path === 'requestingProcess.requestingState') {
+    if (current === 'success') {
+      validHandler(locales('feedback.success'));
+    }
+    if (current === 'requesting') {
+      requestingHandler();
+    }
+    if (current === 'failed') {
+      invalidHandler();
+    }
+  }
+
+  if (path === 'feeds') {
+    const feedsTexts = {
+      title: locales('feeds.title'),
+    };
+    renderFeeds(current, feedsTexts);
+  }
+
+  if (path === 'posts') {
+    const postsTexts = {
+      title: locales('posts.title'),
+      previewButton: locales('posts.previewButton'),
+    };
+    renderPosts(current, postsTexts, watchedState.uiState.visitedPosts);
+  }
+
+  if (path === 'uiState.visitedPosts') {
+    updatePostsUI(current);
+  }
+
+  if (path === 'uiState.popup.postId') {
+    renderPopup(watchedState);
+  }
+};

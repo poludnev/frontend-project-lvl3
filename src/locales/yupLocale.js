@@ -4,5 +4,6 @@ export default {
   },
   mixed: {
     notOneOf: 'urlExists',
+    required: 'emptyInput',
   },
 };

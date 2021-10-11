@@ -16,7 +16,6 @@ export default {
       invalidRSS: 'Ресурс не содержит валидный RSS',
       networkError: 'Ошибка сети',
     },
-    // feedsTitle: 'Фиды',
     feeds: { title: 'Фиды' },
     posts: {
       title: 'Посты',
