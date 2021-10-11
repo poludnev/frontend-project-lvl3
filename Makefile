@@ -11,10 +11,15 @@ test-coverage:
 	npm test -- --coverage --coverageProvider=v8
 
 lint:
-	npx eslint .
+	npx eslint . --fix
+
+develop:
+	npx webpack serve
 
 publish:
 	npm publish --dry-run
 
 build: 
-	npm run build
+	rm -rf dist
+	NODE_ENV=production npx webpack
+	# npm run build

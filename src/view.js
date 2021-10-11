@@ -1,5 +1,4 @@
 const initialHandler = (locales) => {
-  console.log('initia;l handler started');
   document.querySelector('h1').innerHTML = locales('title');
   document.querySelector('.lead').innerHTML = locales('lead');
   document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
@@ -21,7 +20,9 @@ const renderPopup = (state) => {
   } = state;
 
   const [postData] = posts.filter((post) => post.id === postId);
-  const { title, description, link, id } = postData;
+  const {
+    title, description, link, id,
+  } = postData;
 
   document.querySelector('.modal-title').innerHTML = title;
   document.querySelector('.modal-body').innerHTML = description;
@@ -62,7 +63,6 @@ const validHandler = (message) => {
 };
 
 const requestingHandler = () => {
-  console.log('requestinghandler run');
   const input = document.querySelector('input');
   input.classList.remove('is-invalid');
   input.disabled = true;
@@ -120,7 +120,9 @@ const renderFeeds = (feeds, feedsTexts) => {
   const feedsUl = makeUl();
   feeds
     .sort((a, b) => b.id - a.id)
-    .forEach(({ title, description, link, id }) => {
+    .forEach(({
+      title, description, link, id,
+    }) => {
       feedsUl.appendChild(makeFeedLi(title, description, link, id));
     });
   feedsBlock.appendChild(feedsUl);
@@ -165,7 +167,9 @@ const renderPosts = (posts, postsTexts, postsUI) => {
   const postsUl = makeUl();
   posts
     .sort((a, b) => b.feedId - a.feedIdb)
-    .forEach(({ title, link, id, visited }) => {
+    .forEach(({
+      title, link, id, visited,
+    }) => {
       postsUl.appendChild(makePostsLi(title, link, id, visited, postsTexts.previewButton));
     });
   postsBlock.appendChild(postsUl);
@@ -204,21 +208,7 @@ const handleErrors = (errors, errorTexts) => {
 };
 
 export default (watchedState, path, current, locales) => {
-  // console.log('view launched, watchedState:', watchedState);
-  // console.log('view launched, path:', path, current);
-  // if (path === 'rssRequestingProcess.errors' && current.length > 0) {
-  //   const errorsTexts = {
-  //     invalidURL: locales('errors.invalidURL'),
-  //     urlExists: locales('errors.urlExists'),
-  //     invalidRSS: locales('errors.invalidRSS'),
-  //     networkError: locales('errors.networkError'),
-  //   };
-  //   handleErrors(current, errorsTexts);
-  // }
-
   if (/errors/g.exec(path)) {
-    // console.log('view launched, Errors', watchedState);
-    // console.log(current);
     if (current.length === 0) return;
     const errorsTexts = {
       invalidURL: locales('errors.invalidURL'),
@@ -236,15 +226,6 @@ export default (watchedState, path, current, locales) => {
     if (current === 'invalid') {
       invalidHandler();
     }
-    // if (current === 'requesting') {
-    //   requestingHandler();
-    // }
-    // if (current === 'failed') {
-    //   invalidHandler();
-    // }
-    // if (current === 'success') {
-    //   validHandler(locales('feedback.success'));
-    // }
   }
 
   if (path === 'requestingProcess.requestingState') {

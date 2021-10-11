@@ -41,7 +41,7 @@ const createNockScope = (scope) => {
 };
 
 beforeEach(async () => {
-  const initHtml = readFileSync('index.html').toString();
+  const initHtml = readFileSync(getFixturePath('index.html')).toString();
   document.body.innerHTML = initHtml;
   nock.disableNetConnect();
   await app();
@@ -74,6 +74,7 @@ test.each`
   userEvent.type(input, url);
   userEvent.click(button);
   const feedback = await screen.findByText(queryText, { selector: '.feedback' });
+
   expect(feedback).toHaveTextContent(messageText);
 });
 
@@ -84,6 +85,10 @@ test('when RSS is valid and modal', async () => {
   const button = screen.getByRole('button', { name: 'add' });
   userEvent.type(input, 'https://ru.hexlet.io/example.rss');
   userEvent.click(button);
+
+  setTimeout(() => {
+    expect([...document.querySelectorAll('[disabled]')].length).toBe(2);
+  }, 10);
 
   await screen.findByText('RSS успешно загружен');
   await screen.findByText('HTTP / Java: Веб-технологии');
