@@ -65,9 +65,7 @@ test.each`
   ${testTitles[0]} | ${null}              | ${urls[0]} | ${/Ошибка/} | ${'Ошибка сети'}
   ${testTitles[1]} | ${null}              | ${urls[1]} | ${/Ссылка/} | ${'Ссылка должна быть валидным URL'}
   ${testTitles[2]} | ${scopes.invalidRSS} | ${urls[2]} | ${/Ресурс/} | ${'Ресурс не содержит валидный RSS'}
-`('When $testTitle', async ({
-  scope, url, queryText, messageText,
-}) => {
+`('When $testTitle', async ({ scope, url, queryText, messageText }) => {
   createNockScope(scope);
   const input = screen.getByRole('textbox', { name: 'url' });
   const button = screen.getByRole('button', { name: 'add' });
@@ -87,7 +85,8 @@ test('when RSS is valid and modal', async () => {
   userEvent.click(button);
 
   setTimeout(() => {
-    expect([...document.querySelectorAll('[disabled]')].length).toBe(2);
+    expect(input).toBeDisabled();
+    expect(button).toBeDisabled();
   }, 10);
 
   await screen.findByText('RSS успешно загружен');
