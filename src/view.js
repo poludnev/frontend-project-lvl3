@@ -1,13 +1,13 @@
 const initialHandler = (locales) => {
-  document.querySelector('h1').innerHTML = locales('title');
-  document.querySelector('.lead').innerHTML = locales('lead');
-  document.querySelector('#url-input ~ label').innerHTML = locales('form.inputLabel');
-  document.querySelector('form button').innerHTML = locales('form.button');
-  document.querySelector('form ~ p').innerHTML = locales('sampleUrl');
+  document.querySelector('h1').textContent = locales('title');
+  document.querySelector('.lead').textContent = locales('lead');
+  document.querySelector('#url-input ~ label').textContent = locales('form.inputLabel');
+  document.querySelector('form button').textContent = locales('form.button');
+  document.querySelector('form ~ p').textContent = locales('sampleUrl');
   document.querySelector('.modal-footer button').textContent = locales('modal.closeButton');
   document.querySelector('.full-article').textContent = locales('modal.readButton');
   const footerLink = document.querySelector('footer a');
-  footerLink.innerHTML = locales('footer.link');
+  footerLink.textContent = locales('footer.link');
   footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
 };
 
@@ -19,15 +19,13 @@ const renderPopup = (state) => {
     posts,
   } = state;
 
-  console.log('posts', posts, postId);
   const [postData] = posts.filter((post) => post.id === postId);
-  console.log(postData);
   const {
     title, description, link, id,
   } = postData;
 
-  document.querySelector('.modal-title').innerHTML = title;
-  document.querySelector('.modal-body').innerHTML = description;
+  document.querySelector('.modal-title').textContent = title;
+  document.querySelector('.modal-body').textContent = description;
   document.querySelector('.full-article').href = link;
 
   const a = document.querySelector(`[data-id="${id}"]`);
@@ -59,7 +57,7 @@ const validHandler = (message) => {
   button.removeAttribute('readonly');
 
   const feedback = document.querySelector('.feedback');
-  feedback.innerHTML = `${message}`;
+  feedback.textContent = `${message}`;
   feedback.classList.add('text-success');
   feedback.classList.remove('text-danger');
 };
@@ -75,12 +73,12 @@ const requestingHandler = (message) => {
   button.disabled = true;
 
   const feedback = document.querySelector('.feedback');
-  feedback.innerHTML = `${message}`;
+  feedback.textContent = `${message}`;
   feedback.classList.remove('text-success');
   feedback.classList.remove('text-danger');
 };
 
-const updatePostsUI = (visitedPostsIds) => {
+const markVisitedPosts = (visitedPostsIds) => {
   visitedPostsIds.forEach((id) => {
     const post = document.querySelector(`[data-id="${id}"]`);
     post.classList.add('fw-nomal', 'link-secondary');
@@ -91,7 +89,16 @@ const updatePostsUI = (visitedPostsIds) => {
 const makeCard = (title) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
-  card.innerHTML = `<div class="card-body"><h2 class="card-title h4">${title}</h2></div>`;
+
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
+
+  const cardBodyHeader = document.createElement('h2');
+  cardBodyHeader.classList.add('card-title', 'h4');
+  cardBodyHeader.textContent = `${title}`;
+
+  cardBody.appendChild(cardBodyHeader);
+  card.appendChild(cardBody);
   return card;
 };
 
@@ -104,14 +111,14 @@ const makeUl = () => {
 const makeFeedLi = (title, description) => {
   const li = document.createElement('li');
   li.classList.add('list-group-item', 'border-0', 'border-end-0');
-  const h3 = document.createElement('h3');
-  h3.classList.add('h6', 'm-0');
-  h3.innerHTML = title;
+  const header = document.createElement('h3');
+  header.classList.add('h6', 'm-0');
+  header.textContent = title;
 
   const p = document.createElement('p');
   p.classList.add('m-0', 'small', 'text-black-50');
-  p.innerHTML = description;
-  li.appendChild(h3);
+  p.textContent = description;
+  li.appendChild(header);
   li.appendChild(p);
   return li;
 };
@@ -132,7 +139,7 @@ const renderFeeds = (feeds, feedsTexts) => {
   feedsBlock.appendChild(feedsUl);
 };
 
-const makePostsLi = (title, link, id, visited, buttonName) => {
+const makePostsLi = (title, link, id, buttonName) => {
   const li = document.createElement('li');
   li.classList.add(
     'list-group-item',
@@ -165,24 +172,22 @@ const makePostsLi = (title, link, id, visited, buttonName) => {
 
 const renderPosts = (posts, postsTexts, postsUI) => {
   const postsBlock = document.querySelector('.posts');
-  postsBlock.innerHTML = '';
+  postsBlock.textContent = '';
   if (posts.length === 0) return;
   postsBlock.appendChild(makeCard(postsTexts.title));
   const postsUl = makeUl();
   posts
     .sort((a, b) => b.feedId - a.feedIdb)
-    .forEach(({
-      title, link, id, visited,
-    }) => {
-      postsUl.appendChild(makePostsLi(title, link, id, visited, postsTexts.previewButton));
+    .forEach(({ title, link, id }) => {
+      postsUl.appendChild(makePostsLi(title, link, id, postsTexts.previewButton));
     });
   postsBlock.appendChild(postsUl);
-  updatePostsUI(postsUI);
+  markVisitedPosts(postsUI);
 };
 
 const showErrorMessage = (errorMessage) => {
   const feedback = document.querySelector('.feedback');
-  feedback.innerHTML = `${errorMessage}`;
+  feedback.textContent = `${errorMessage}`;
   feedback.classList.remove('text-success');
   feedback.classList.add('text-danger');
 };
@@ -260,7 +265,7 @@ export default (watchedState, path, current, locales) => {
   }
 
   if (path === 'uiState.visitedPosts') {
-    updatePostsUI(current);
+    markVisitedPosts(current);
   }
 
   if (path === 'uiState.popup.postId') {

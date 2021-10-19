@@ -116,10 +116,10 @@ export default () => i18next
       const feedsLinks = [...watchedState.feeds].map(({ link }) => link);
 
       validateURL(feedsLinks, url)
-        .then(({ url }) => {
+        .then(({ url: validUrl }) => {
           watchedState.form.validationState = 'valid';
           watchedState.form.errors = [];
-          return requestDataCreateFeed(url, watchedState);
+          return requestDataCreateFeed(validUrl, watchedState);
         })
         .catch((e) => {
           if (e.name === 'ValidationError') {

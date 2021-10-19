@@ -113,14 +113,14 @@ test('When url already exists', async () => {
   userEvent.type(input, 'https://ru.hexlet.io/example.rss');
   userEvent.click(button);
 
-  let feedback = await screen.findByText(/.{1,}/, { selector: '.feedback' });
-  expect(feedback).toHaveTextContent('RSS успешно загружен');
+  let feedback = await screen.findByText('RSS успешно загружен');
+  expect(feedback).toBeInTheDocument();
 
   userEvent.type(input, 'https://ru.hexlet.io/example.rss');
   userEvent.click(button);
 
   setTimeout(async () => {
-    feedback = await screen.findByText(/.{1,}/, { selector: '.feedback' });
-    expect(feedback).toHaveTextContent('RSS уже существует');
+    feedback = await screen.findByText('RSS уже существует');
+    expect(feedback).toBeInTheDocument();
   }, 100);
 });
