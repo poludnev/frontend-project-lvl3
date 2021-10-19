@@ -19,7 +19,9 @@ const renderPopup = (state) => {
     posts,
   } = state;
 
+  console.log('posts', posts, postId);
   const [postData] = posts.filter((post) => post.id === postId);
+  console.log(postData);
   const {
     title, description, link, id,
   } = postData;
@@ -62,7 +64,7 @@ const validHandler = (message) => {
   feedback.classList.remove('text-danger');
 };
 
-const requestingHandler = () => {
+const requestingHandler = (message) => {
   const input = document.querySelector('input');
   input.classList.remove('is-invalid');
   input.disabled = true;
@@ -73,12 +75,14 @@ const requestingHandler = () => {
   button.disabled = true;
 
   const feedback = document.querySelector('.feedback');
-  feedback.innerHTML = '';
+  feedback.innerHTML = `${message}`;
+  feedback.classList.remove('text-success');
+  feedback.classList.remove('text-danger');
 };
 
-const updatePostsUI = (visitedPostsID) => {
-  visitedPostsID.forEach((elem) => {
-    const post = document.querySelector(`[data-id="${elem}"]`);
+const updatePostsUI = (visitedPostsIds) => {
+  visitedPostsIds.forEach((id) => {
+    const post = document.querySelector(`[data-id="${id}"]`);
     post.classList.add('fw-nomal', 'link-secondary');
     post.classList.remove('fw-bold');
   });
@@ -228,12 +232,12 @@ export default (watchedState, path, current, locales) => {
     }
   }
 
-  if (path === 'requestingProcess.requestingState') {
+  if (path === 'requestingProcess.state') {
     if (current === 'success') {
       validHandler(locales('feedback.success'));
     }
     if (current === 'requesting') {
-      requestingHandler();
+      requestingHandler(locales('feedback.requesting'));
     }
     if (current === 'failed') {
       invalidHandler();

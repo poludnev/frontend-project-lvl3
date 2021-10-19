@@ -9,6 +9,7 @@ export default {
     sampleUrl: 'Пример: https://ru.hexlet.io/lessons.rss',
     feedback: {
       success: 'RSS успешно загружен',
+      requesting: 'Запрос...',
     },
     errors: {
       urlExists: 'RSS уже существует',
