@@ -38,36 +38,40 @@ const updateFeeds = (state) => {
       state.posts.push(...newPosts);
     })
     .catch((e) => {
-      state.requestingProcess.state = 'failed';
-      state.requestingProcess.errors.push(e);
+      console.error(e);
     }));
 
   return Promise.all([...newFeeds]).then(setTimeout(() => updateFeeds(state), updateFeedsDelay));
 };
 
-// r
 const requestDataCreateFeed = (url, state) => {
   state.requestingProcess.state = 'requesting';
-  return axios.get(addProxy(url)).then((response) => {
-    const feed = parseXmlToDom(response.data.contents);
-    const feedId = Number(_.uniqueId());
-    const posts = feed.items.map(({ title, link, description }) => ({
-      title,
-      link,
-      description,
-      feedId,
-      id: Number(_.uniqueId()),
-    }));
-    state.feeds.push({
-      title: feed.title,
-      description: feed.description,
-      link: url,
-      id: feedId,
+  return axios
+    .get(addProxy(url))
+    .then((response) => {
+      const feed = parseXmlToDom(response.data.contents);
+      const feedId = Number(_.uniqueId());
+      const posts = feed.items.map(({ title, link, description }) => ({
+        title,
+        link,
+        description,
+        feedId,
+        id: Number(_.uniqueId()),
+      }));
+      state.feeds.push({
+        title: feed.title,
+        description: feed.description,
+        link: url,
+        id: feedId,
+      });
+      state.posts.push(...posts);
+      state.requestingProcess.state = 'success';
+      state.requestingProcess.errors = [];
+    })
+    .catch((e) => {
+      state.requestingProcess.state = 'failed';
+      state.requestingProcess.errors.push(e);
     });
-    state.posts.push(...posts);
-    state.requestingProcess.state = 'success';
-    state.requestingProcess.errors = [];
-  });
 };
 
 export default () => i18next
@@ -122,13 +126,8 @@ export default () => i18next
           return requestDataCreateFeed(validUrl, watchedState);
         })
         .catch((e) => {
-          if (e.name === 'ValidationError') {
-            watchedState.form.validationState = 'invalid';
-            watchedState.form.errors.push(e);
-          } else {
-            watchedState.requestingProcess.state = 'failed';
-            watchedState.requestingProcess.errors.push(e);
-          }
+          watchedState.form.validationState = 'invalid';
+          watchedState.form.errors.push(e);
         });
     });
 
