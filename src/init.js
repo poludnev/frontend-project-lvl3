@@ -44,7 +44,7 @@ const updateFeeds = (state) => {
   return Promise.all([...newFeeds]).then(setTimeout(() => updateFeeds(state), updateFeedsDelay));
 };
 
-const requestDataCreateFeed = (url, state) => {
+const loadRSS = (url, state) => {
   state.requestingProcess.state = 'requesting';
   return axios
     .get(addProxy(url))
@@ -123,7 +123,7 @@ export default () => i18next
         .then(({ url: validUrl }) => {
           watchedState.form.validationState = 'valid';
           watchedState.form.errors = [];
-          return requestDataCreateFeed(validUrl, watchedState);
+          return loadRSS(validUrl, watchedState);
         })
         .catch((e) => {
           watchedState.form.validationState = 'invalid';
