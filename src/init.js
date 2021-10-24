@@ -66,7 +66,7 @@ const loadRSS = (url, state) => {
       });
       state.posts.push(...posts);
       state.requestingProcess.state = 'success';
-      state.requestingProcess.errors = [];
+      state.requestingProcess.errors.length = 0;
     })
     .catch((e) => {
       state.requestingProcess.state = 'failed';
@@ -122,7 +122,7 @@ export default () => i18next
       validateURL(feedsLinks, url)
         .then(({ url: validUrl }) => {
           watchedState.form.validationState = 'valid';
-          watchedState.form.errors = [];
+          watchedState.form.errors.length = 0;
           return loadRSS(validUrl, watchedState);
         })
         .catch((e) => {
