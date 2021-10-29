@@ -125,33 +125,33 @@ export default () => i18next
       },
     };
 
-    const watchedState = render(state, locales, elements, 'form.validationState', 'initial');
+    const view = render(state, locales, elements, 'form.validationState', 'initial');
 
-    updateFeeds(watchedState, updateFeedsDelay);
+    updateFeeds(view, updateFeedsDelay);
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
 
       const formData = new FormData(event.target);
       const url = formData.get('url');
-      const feedsLinks = [...watchedState.feeds].map(({ link }) => link);
+      const feedsLinks = [...view.feeds].map(({ link }) => link);
 
       validateURL(feedsLinks, url)
         .then(({ url: validUrl }) => {
-          watchedState.form.error = null;
-          watchedState.form.validationState = 'valid';
-          return loadRSS(validUrl, watchedState);
+          view.form.error = null;
+          view.form.validationState = 'valid';
+          return loadRSS(validUrl, view);
         })
         .catch((e) => {
-          watchedState.form.validationState = 'invalid';
-          watchedState.form.error = e;
+          view.form.validationState = 'invalid';
+          view.form.error = e;
         });
     });
 
     postsBlock.addEventListener('click', (e) => {
       if (!('id' in e.target.dataset)) return;
       const id = Number(e.target.dataset.id);
-      watchedState.uiState.visitedPosts.add(id);
-      watchedState.uiState.popup.postId = id;
+      view.uiState.visitedPosts.add(id);
+      view.uiState.popup.postId = id;
     });
   });
