@@ -15,7 +15,7 @@ export default {
       urlExists: 'RSS уже существует',
       invalidURL: 'Ссылка должна быть валидным URL',
       invalidRSS: 'Ресурс не содержит валидный RSS',
-      networkError: 'Ошибка сети',
+      'Network Error': 'Ошибка сети',
     },
     feeds: { title: 'Фиды' },
     posts: {

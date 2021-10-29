@@ -4,7 +4,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import * as yup from 'yup';
 import render from './view.js';
-import parseXmlToDom from './rssParser.js';
+import parse from './rssParser.js';
 import ru from './locales/ru.js';
 import yupLocales from './locales/yupLocale.js';
 import 'bootstrap/dist/js/bootstrap.min.js';
@@ -28,14 +28,14 @@ const updateFeeds = (state) => {
     .get(addProxy(url))
     .then((response) => {
       const oldPosts = [...state.posts].filter((post) => post.feedId === id);
-      const { items } = parseXmlToDom(response.data.contents);
+      const { items } = parse(response.data.contents);
       const newPosts = _.differenceWith(
         items,
         oldPosts,
         (item, post) => item.title === post.title,
       ).map((post) => ({ ...post, feedId: id, id: Number(_.uniqueId()) }));
 
-      state.posts.push(...newPosts);
+      state.posts.unshift(...newPosts);
     })
     .catch((e) => {
       console.error(e);
@@ -45,11 +45,13 @@ const updateFeeds = (state) => {
 };
 
 const loadRSS = (url, state) => {
+  state.requestingProcess.error = null;
   state.requestingProcess.state = 'requesting';
+  state.form.validationState = 'blocked';
   return axios
     .get(addProxy(url))
     .then((response) => {
-      const feed = parseXmlToDom(response.data.contents);
+      const feed = parse(response.data.contents);
       const feedId = Number(_.uniqueId());
       const posts = feed.items.map(({ title, link, description }) => ({
         title,
@@ -58,19 +60,22 @@ const loadRSS = (url, state) => {
         feedId,
         id: Number(_.uniqueId()),
       }));
-      state.feeds.push({
+      state.feeds.unshift({
         title: feed.title,
         description: feed.description,
         link: url,
         id: feedId,
       });
-      state.posts.push(...posts);
+      state.posts.unshift(...posts);
+      state.requestingProcess.error = null;
       state.requestingProcess.state = 'success';
-      state.requestingProcess.errors.length = 0;
+      state.form.validationState = 'initial';
     })
     .catch((e) => {
+      // console.log(e);
+      state.requestingProcess.error = e;
       state.requestingProcess.state = 'failed';
-      state.requestingProcess.errors.push(e);
+      state.form.validationState = 'invalid';
     });
 };
 
@@ -85,16 +90,29 @@ export default () => i18next
     const form = document.querySelector('form');
     const postsBlock = document.querySelector('.posts');
 
+    const elements = {
+      feedback: document.querySelector('.feedback'),
+      input: document.querySelector('input'),
+      button: document.querySelector('[name="add"]'),
+      feedsContainer: document.querySelector('.feeds'),
+      postsContainer: document.querySelector('.posts'),
+      popup: {
+        modalTitle: document.querySelector('.modal-title'),
+        modalBody: document.querySelector('.modal-body'),
+        modalArticleLink: document.querySelector('.full-article'),
+      },
+    };
+
     yup.setLocale(yupLocales);
 
     const state = {
       form: {
         validationState: 'valid',
-        errors: [],
+        error: null,
       },
       requestingProcess: {
         state: 'initial',
-        errors: [],
+        error: null,
       },
       feeds: [],
       posts: [],
@@ -104,30 +122,39 @@ export default () => i18next
       },
     };
 
-    render(state, 'form.validationState', 'initial', locales);
+    const watchedState = render(state, locales, elements, 'form.validationState', 'initial');
 
-    const watchedState = onChange(state, (path, current) => {
-      render(watchedState, path, current, locales);
-    });
+    // const watchedState = onChange(state, (path, current) => {
+    //   render(watchedState, path, current, locales);
+    // });
 
-    updateFeeds(watchedState, updateFeedsDelay);
+    // console.log('initial watched state', watchedState);
+
+    // updateFeeds(watchedState, updateFeedsDelay);
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      // console.log('form submitted watched state', watchedState);
 
       const formData = new FormData(event.target);
       const url = formData.get('url');
       const feedsLinks = [...watchedState.feeds].map(({ link }) => link);
-
+      // console.log(feedsLinks);
+      // console.log('url:', url);
       validateURL(feedsLinks, url)
         .then(({ url: validUrl }) => {
+          // console.log('url Valid', validUrl);
+          // console.log('watched state', watchedState);
+          watchedState.form.error = null;
+          // console.log('watched state1', watchedState.form);
+          // console.log('watched state2', watchedState.form.validationState);
           watchedState.form.validationState = 'valid';
-          watchedState.form.errors.length = 0;
           return loadRSS(validUrl, watchedState);
         })
         .catch((e) => {
+          // console.log('error in controller', e);
           watchedState.form.validationState = 'invalid';
-          watchedState.form.errors.push(e);
+          watchedState.form.error = e;
         });
     });
 
