@@ -1,83 +1,5 @@
 import onChange from 'on-change';
 
-const initialHandler = (locales) => {
-  document.querySelector('h1').textContent = locales('title');
-  document.querySelector('.lead').textContent = locales('lead');
-  document.querySelector('#url-input ~ label').textContent = locales('form.inputLabel');
-  document.querySelector('form button').textContent = locales('form.button');
-  document.querySelector('form ~ p').textContent = locales('sampleUrl');
-  document.querySelector('.modal-footer button').textContent = locales('modal.closeButton');
-  document.querySelector('.full-article').textContent = locales('modal.readButton');
-  const footerLink = document.querySelector('footer a');
-  footerLink.textContent = locales('footer.link');
-  footerLink.parentElement.childNodes[0].nodeValue = locales('footer.text');
-};
-
-// const renderPopup = (state) => {
-//   const {
-//     uiState: {
-//       popup: { postId },
-//     },
-//     posts,
-//   } = state;
-
-//   const [postData] = posts.filter((post) => post.id === postId);
-//   const { title, description, link, id } = postData;
-
-//   document.querySelector('.modal-title').textContent = title;
-//   document.querySelector('.modal-body').textContent = description;
-//   document.querySelector('.full-article').href = link;
-
-//   const a = document.querySelector(`[data-id="${id}"]`);
-//   a.classList.remove('fw-bold');
-//   a.classList.add('fw-normal', 'link-secondary');
-// };
-
-// const invalidHandler = () => {
-//   const input = document.querySelector('input');
-//   input.classList.add('is-invalid');
-//   input.removeAttribute('readonly');
-//   input.disabled = false;
-
-//   const button = document.querySelector('[name="add"]');
-//   button.disabled = false;
-//   button.removeAttribute('readonly');
-// };
-
-// const validHandler = (message) => {
-//   const input = document.querySelector('input');
-//   input.removeAttribute('readonly');
-//   input.classList.remove('is-invalid');
-//   input.disabled = false;
-//   input.value = '';
-//   input.focus();
-
-//   const button = document.querySelector('[name="add"]');
-//   button.disabled = false;
-//   button.removeAttribute('readonly');
-
-//   const feedback = document.querySelector('.feedback');
-//   feedback.textContent = `${message}`;
-//   feedback.classList.add('text-success');
-//   feedback.classList.remove('text-danger');
-// };
-
-// const requestingHandler = (message) => {
-//   const input = document.querySelector('input');
-//   input.classList.remove('is-invalid');
-//   input.disabled = true;
-//   input.setAttribute('readonly', '');
-
-//   const button = document.querySelector('[name="add"]');
-//   button.setAttribute('readonly', '');
-//   button.disabled = true;
-
-//   const feedback = document.querySelector('.feedback');
-//   feedback.textContent = `${message}`;
-//   feedback.classList.remove('text-success');
-//   feedback.classList.remove('text-danger');
-// };
-
 const makeCard = (title) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
@@ -115,20 +37,6 @@ const makeFeedLi = (title, description) => {
   return li;
 };
 
-// const renderFeeds = (feeds, feedsTexts) => {
-//   const feedsBlock = document.querySelector('.feeds');
-//   feedsBlock.innerHTML = '';
-//   if (feeds.length === 0) return;
-//   feedsBlock.appendChild(makeCard(feedsTexts.title));
-//   const feedsUl = makeUl();
-//   feeds
-//     .sort((a, b) => b.id - a.id)
-//     .forEach(({ title, description, link, id }) => {
-//       feedsUl.appendChild(makeFeedLi(title, description, link, id));
-//     });
-//   feedsBlock.appendChild(feedsUl);
-// };
-
 const makePostsLi = (title, link, id, buttonName) => {
   const li = document.createElement('li');
   li.classList.add(
@@ -160,112 +68,7 @@ const makePostsLi = (title, link, id, buttonName) => {
   return li;
 };
 
-const showErrorMwessage = (errorMessage) => {
-  const feedback = document.querySelector('.feedback');
-  feedback.textContent = `${errorMessage}`;
-  feedback.classList.remove('text-success');
-  feedback.classList.add('text-danger');
-};
-
-const handleErrors = (error, locales) => {
-  console.log('handleErrors', error);
-  // console.log('errorTexts', errorTexts);
-  // const error = errors[errors.length - 1];
-  showErrorMessage(locales(`errors.${error.message}`));
-  // switch (true) {
-  //   case !!/Net/g.exec(error):
-  //     showErrorMessage(errorTexts.networkError);
-  //     break;
-  //   case !!/invalidRSS/g.exec(error):
-  //     showErrorMessage(errorTexts.invalidRSS);
-  //     break;
-  //   case !!/urlExists/g.exec(error):
-  //     showErrorMessage(errorTexts.urlExists);
-  //     break;
-  //   case !!/invalidURL/g.exec(error):
-  //     showErrorMessage(errorTexts.invalidURL);
-  //     break;
-  //   case !!/emptyInput/g.exec(error):
-  //     showErrorMessage(errorTexts.invalidURL);
-  //     break;
-  //   default:
-  //   // showErrorMessage('unknown errors');
-  //   // console.error(error);
-  // }
-};
-
-// export default (state, path, current, locales) => {
-//   if (/errors/g.exec(path)) {
-//     if (current.length === 0) return;
-//     const errorsTexts = {
-//       invalidURL: locales('errors.invalidURL'),
-//       urlExists: locales('errors.urlExists'),
-//       invalidRSS: locales('errors.invalidRSS'),
-//       networkError: locales('errors.networkError'),
-//     };
-//     handleErrors(current, errorsTexts);
-//   }
-
-//   if (path === 'form.validationState') {
-//     if (current === 'initial') {
-//       initialHandler(locales);
-//     }
-//     if (current === 'invalid') {
-//       invalidHandler();
-//     }
-//   }
-
-//   if (path === 'requestingProcess.state') {
-//     if (current === 'success') {
-//       validHandler(locales('feedback.success'));
-//     }
-//     if (current === 'requesting') {
-//       requestingHandler(locales('feedback.requesting'));
-//     }
-//     if (current === 'failed') {
-//       invalidHandler();
-//     }
-//   }
-
-//   if (path === 'feeds') {
-//     const feedsTexts = {
-//       title: locales('feeds.title'),
-//     };
-//     renderFeeds(current, feedsTexts);
-//   }
-
-//   if (path === 'posts') {
-//     const postsTexts = {
-//       title: locales('posts.title'),
-//       previewButton: locales('posts.previewButton'),
-//     };
-//     renderPosts(current, postsTexts, state.uiState.visitedPosts);
-//   }
-
-//   if (path === 'uiState.visitedPosts') {
-//     tagVisitedPosts(current);
-//   }
-
-//   if (path === 'uiState.popup.postId') {
-//     renderPopup(state);
-//   }
-//   const handlers = {
-//     'requestingProcess.state': {
-//       success: validHandler(locales('feedback.success')),
-//     },
-//   };
-
-//   const handling = (path, current) => {
-//     console.log('handling path', path);
-//     console.log('handling current', current);
-//     // handlers[path][current];
-//   };
-
-//   return onChange(state, handling);
-// };
-
-const renderFeedBack = (message, state, elements, error, locales) => {
-  // console.log('renderFeedBack');
+const renderFeedBack = (elements, message, state) => {
   const { feedback } = elements;
 
   switch (state) {
@@ -290,7 +93,7 @@ const renderFeedBack = (message, state, elements, error, locales) => {
   }
 };
 
-const renderForm = (validationState, elements) => {
+const renderForm = (elements, validationState) => {
   const { input, button } = elements;
 
   switch (validationState) {
@@ -324,7 +127,6 @@ const renderForm = (validationState, elements) => {
       input.removeAttribute('readonly');
       button.disabled = false;
       button.removeAttribute('readonly');
-      // input.value = '';
       input.focus();
       return;
     default:
@@ -332,24 +134,21 @@ const renderForm = (validationState, elements) => {
   }
 };
 
-const renderFeeds = (feeds, feedsTitle, elements) => {
-  const { feedsContainer } = elements;
-  // const feedsBlock = document.querySelector('.feeds');
-  feedsContainer.textContent = '';
+const renderFeeds = (elements, feeds, feedsTitle) => {
   if (feeds.length === 0) return;
+  const { feedsContainer } = elements;
+  feedsContainer.textContent = '';
   feedsContainer.appendChild(makeCard(feedsTitle));
   const feedsUl = makeUl();
-  feeds
-    // .sort((a, b) => b.id - a.id)
-    .forEach(({
-      title, description, link, id,
-    }) => {
-      feedsUl.appendChild(makeFeedLi(title, description, link, id));
-    });
+  feeds.forEach(({
+    title, description, link, id,
+  }) => {
+    feedsUl.appendChild(makeFeedLi(title, description, link, id));
+  });
   feedsContainer.appendChild(feedsUl);
 };
 
-const tagVisitedPosts = (visitedPostsIds, elements) => {
+const tagVisitedPosts = (elements, visitedPostsIds) => {
   const { postsContainer } = elements;
   visitedPostsIds.forEach((id) => {
     const post = postsContainer.querySelector(`[data-id="${id}"]`);
@@ -358,10 +157,10 @@ const tagVisitedPosts = (visitedPostsIds, elements) => {
   });
 };
 
-const renderPosts = (posts, postsTexts, elements, visitedPostsIds) => {
+const renderPosts = (elements, posts, postsTexts, visitedPostsIds) => {
+  if (posts.length === 0) return;
   const { postsContainer } = elements;
   postsContainer.textContent = '';
-  if (posts.length === 0) return;
   postsContainer.appendChild(makeCard(postsTexts.title));
   const postsUl = makeUl();
   posts
@@ -370,119 +169,123 @@ const renderPosts = (posts, postsTexts, elements, visitedPostsIds) => {
       postsUl.appendChild(makePostsLi(title, link, id, postsTexts.previewButton));
     });
   postsContainer.appendChild(postsUl);
-  tagVisitedPosts(visitedPostsIds, elements);
+  tagVisitedPosts(elements, visitedPostsIds);
 };
 
-const renderPopup = (postData, elements) => {
-  const {
-    popup: { modalTitle, modalBody, modalArticleLink },
-  } = elements;
-
-  const {
-    title, description, link, id,
-  } = postData;
+const renderPopup = (elements, postData) => {
+  const { modalTitle, modalBody, modalArticleLink } = elements;
+  const { title, description, link } = postData;
 
   modalTitle.textContent = title;
   modalBody.textContent = description;
   modalArticleLink.href = link;
-
-  // const a = document.querySelector(`[data-id="${id}"]`);
-  // a.classList.remove('fw-bold');
-  // a.classList.add('fw-normal', 'link-secondary');
 };
 
-const handle = {
-  'form.validationState': (currentState, current, locales, elements) => {
+const viewHandlers = {
+  'form.validationState': (appState, elements) => {
+    const {
+      form: { validationState },
+    } = appState;
+    renderForm(elements, validationState);
+  },
+
+  'form.error': (appState, elements, locales) => {
     const {
       form: { error, validationState },
-    } = currentState;
-    // if (error) {
-    //   const message = locales(`errors.${error.message}`);
-
-    //   renderFeedBack(message, validationState, elements);
-    // }
-    renderForm(validationState, elements);
+    } = appState;
+    if (!error) return;
+    const message = locales(`errors.${error.message}`);
+    renderFeedBack(elements, message, validationState);
   },
-  'form.error': (currentState, current, locales, elements) => {
-    // console.log('from error');
-    const {
-      form: { error, validationState },
-    } = currentState;
-    if (error) {
-      const message = locales(`errors.${error.message}`);
 
-      renderFeedBack(message, validationState, elements);
-    }
-  },
-  'requestingProcess.state': (currentState, current, locales, elements) => {
+  'requestingProcess.state': (appState, elements, locales) => {
     const {
       requestingProcess: { state, error },
-    } = currentState;
-    // console.log(state, error);
+    } = appState;
     const message = error ? locales(`errors.${error.message}`) : locales(`feedback.${state}`);
-    renderFeedBack(message, state, elements);
+    renderFeedBack(elements, message, state);
   },
 
-  feeds: (state, current, locales, elements) => {
+  feeds: (appState, elements, locales) => {
     const {
       feeds,
       form: { validationState },
-    } = state;
+    } = appState;
     const title = locales('feeds.title');
-    renderFeeds(feeds, title, elements);
-    renderForm(validationState, elements);
+    renderFeeds(elements, feeds, title);
+    renderForm(elements, validationState);
   },
-  posts: (state, current, locales, elements) => {
+
+  posts: (appState, elements, locales) => {
     const {
       posts,
       uiState: { visitedPosts },
-    } = state;
-
+    } = appState;
     const texts = {
       title: locales('posts.title'),
       previewButton: locales('posts.previewButton'),
     };
-
-    renderPosts(posts, texts, elements, visitedPosts);
+    renderPosts(elements, posts, texts, visitedPosts);
   },
-  'uiState.visitedPosts': (state, current, locales, elements) => {
-    // console.log('ui state', state);
+
+  'uiState.visitedPosts': (appState, elements) => {
     const {
       uiState: { visitedPosts },
-    } = state;
-    tagVisitedPosts(visitedPosts, elements);
+    } = appState;
+    tagVisitedPosts(elements, visitedPosts);
   },
-  'uiState.popup.postId': (state, current, locales, elements) => {
-    // console.log('ui popup');
+
+  'uiState.popup.postId': (appState, elements) => {
     const {
       uiState: {
         popup: { postId },
         visitedPosts,
       },
       posts,
-    } = state;
-
+    } = appState;
     const postToShow = posts.find((post) => post.id === postId);
-    renderPopup(postToShow, elements);
-    tagVisitedPosts(visitedPosts, elements);
+    renderPopup(elements, postToShow);
+    tagVisitedPosts(elements, visitedPosts);
   },
 };
 
-const stateChangesHandler = (state, locales, elements) => (path, current) => {
-  // console.log(state);
-  // console.log('handling path', path);
+const renderInitialView = (elements, locales) => {
+  const {
+    title,
+    lead,
+    inputLabel,
+    button,
+    sampleUrl,
+    modalArticleLink,
+    modalCloseButton,
+    footerTextContainer,
+    hexletLink,
+  } = elements;
+  title.textContent = locales('title');
+  lead.textContent = locales('lead');
+  inputLabel.textContent = locales('form.inputLabel');
+  button.textContent = locales('form.button');
+  sampleUrl.textContent = locales('sampleUrl');
 
-  // console.log('handling current', current);
+  modalCloseButton.textContent = locales('modal.closeButton');
+  modalArticleLink.textContent = locales('modal.readButton');
+  footerTextContainer.textContent = locales('footer.text');
 
-  // console.log('handle path', handle[path]);
-  if (!handle[path]) return;
-  handle[path](state, current, locales, elements);
+  hexletLink.href = 'https://ru.hexlet.io/professions/frontend/projects/11';
+  hexletLink.target = '_blank';
+  hexletLink.textContent = locales('footer.link');
+  footerTextContainer.appendChild(hexletLink);
 };
 
-const view = (state, locales, elements) => {
-  initialHandler(locales);
-
-  return onChange(state, stateChangesHandler(state, locales, elements));
+const handleStateChanges = (state, elements, locales) => (path) => {
+  if (!viewHandlers[path]) return;
+  viewHandlers[path](state, elements, locales);
 };
 
-export default view;
+const render = (state, locales, elements) => {
+  renderInitialView(elements, locales);
+
+  return onChange(state, handleStateChanges(state, elements, locales));
+};
+
+export default render;

@@ -9,9 +9,6 @@ import testingLibraryUserEvent from '@testing-library/user-event';
 import parse from '../src/rssParser.js';
 import app from '../src/init.js';
 
-// ${testTitles[1]} | ${null}              | ${urls[1]} | ${/Ссылка/} | ${'Ссылка должна быть валидным URL'}
-// ${testTitles[2]} | ${scopes.invalidRSS} | ${urls[2]} | ${/Ресурс/} | ${'Ресурс не содержит валидный RSS'}
-
 axios.defaults.adapter = defaultAdapter;
 const userEvent = testingLibraryUserEvent.default;
 const { screen } = testingLibraryDom;
@@ -27,7 +24,6 @@ const parsedResultPath2 = getFixturePath('rssResult2.json');
 const parsedRSS1 = JSON.parse(readFileSync(parsedResultPath1, 'utf-8'));
 const rssSource = readFileSync(xmlExamplePath1, 'utf-8');
 
-// nock.unmatchedRequests();
 nock.emitter.on('no match', (request) => {
   throw Error('Network Error', request);
 });
