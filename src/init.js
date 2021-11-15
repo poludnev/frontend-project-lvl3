@@ -2,7 +2,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import i18next from 'i18next';
 import * as yup from 'yup';
-import render from './view.js';
+import view from './view.js';
 import parse from './rssParser.js';
 import ru from './locales/ru.js';
 import yupLocales from './locales/yupLocale.js';
@@ -129,7 +129,7 @@ export default () => i18next
       },
     };
 
-    const watchedState = render(state, locales, elements);
+    const watchedState = view(state, locales, elements);
 
     updateFeeds(watchedState);
 
