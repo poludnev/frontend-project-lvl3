@@ -93,26 +93,10 @@ const renderFeedBack = (elements, message, state) => {
   }
 };
 
-const renderForm = (elements, validationState) => {
+const renderValidationState = (elements, state) => {
   const { input, button } = elements;
 
-  switch (validationState) {
-    case 'initial':
-      input.classList.remove('is-invalid');
-      input.disabled = false;
-      input.removeAttribute('readonly');
-      button.disabled = false;
-      button.removeAttribute('readonly');
-      input.value = '';
-      input.focus();
-      return;
-    case 'blocked':
-      input.classList.remove('is-invalid');
-      input.disabled = true;
-      input.setAttribute('readonly', '');
-      button.disabled = true;
-      button.setAttribute('readonly', '');
-      return;
+  switch (state) {
     case 'invalid':
       input.classList.add('is-invalid');
       input.disabled = false;
@@ -131,6 +115,49 @@ const renderForm = (elements, validationState) => {
       return;
     default:
       console.error(`unknown form state: ${validationState}`);
+  };
+};
+
+const renderForm = (elements, state) => {
+  const { input, button } = elements;
+  console.log('render form ran', state);
+
+  switch (state) {
+    case 'initial':
+      input.classList.remove('is-invalid');
+      input.disabled = false;
+      input.removeAttribute('readonly');
+      button.disabled = false;
+      button.removeAttribute('readonly');
+      input.value = '';
+      input.focus();
+      return;
+    case 'requesting':
+      // input.classList.remove('is-invalid');
+      input.disabled = true;
+      input.setAttribute('readonly', '');
+      button.disabled = true;
+      button.setAttribute('readonly', '');
+      return;
+    case 'failed':
+      input.classList.add('is-invalid');
+      input.disabled = false;
+      input.removeAttribute('readonly');
+      button.disabled = false;
+      button.removeAttribute('readonly');
+      input.focus();
+      return;
+    case 'success':
+      input.classList.remove('is-invalid');
+      input.disabled = false;
+      input.removeAttribute('readonly');
+      button.disabled = false;
+      button.removeAttribute('readonly');
+      input.value = '';
+      input.focus();
+      return;
+    default:
+      console.error(`unknown form state: ${state}`);
   }
 };
 
@@ -186,7 +213,7 @@ const viewHandlers = {
     const {
       form: { validationState },
     } = appState;
-    renderForm(elements, validationState);
+    renderValidationState(elements, validationState);
   },
 
   'form.error': (appState, elements, locales) => {
@@ -199,10 +226,14 @@ const viewHandlers = {
   },
 
   'requestingProcess.state': (appState, elements, locales) => {
+    console.log('requestingProcess.state run');
     const {
       requestingProcess: { state, error },
     } = appState;
+    console.log(state, error);
     const message = error ? locales(`errors.${error.message}`) : locales(`feedback.${state}`);
+    console.log(state, error, message);
+    renderForm(elements, state);
     renderFeedBack(elements, message, state);
   },
 
@@ -213,7 +244,7 @@ const viewHandlers = {
     } = appState;
     const title = locales('feeds.title');
     renderFeeds(elements, feeds, title);
-    renderForm(elements, validationState);
+    // rende`rForm(elements, validationState);
   },
 
   posts: (appState, elements, locales) => {

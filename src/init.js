@@ -44,12 +44,15 @@ const updateFeeds = (state) => {
 };
 
 const loadRSS = (url, state) => {
+  console.log('loadRss started');
   state.requestingProcess.error = null;
   state.requestingProcess.state = 'requesting';
-  state.form.validationState = 'blocked';
+  console.log('loadRss started 2');
+  // state.form.validationState = 'blocked';
   return axios
     .get(addProxy(url))
     .then((response) => {
+      console.log('axios valid');
       const feed = parse(response.data.contents);
       const feedId = Number(_.uniqueId());
       const posts = feed.items.map(({ title, link, description }) => ({
@@ -68,12 +71,13 @@ const loadRSS = (url, state) => {
       state.posts.unshift(...posts);
       state.requestingProcess.error = null;
       state.requestingProcess.state = 'success';
-      state.form.validationState = 'initial';
+      // state.form.validationState = 'initial';
     })
     .catch((e) => {
+      console.log('axios invalid');
       state.requestingProcess.error = e;
       state.requestingProcess.state = 'failed';
-      state.form.validationState = 'invalid';
+      // state.form.validationState = 'invalid';
     });
 };
 
@@ -125,21 +129,25 @@ export default () => i18next
       },
     };
 
-    const view = render(state, locales, elements, 'form.validationState', 'initial');
+    const view = render(state, locales, elements);
 
-    updateFeeds(view, updateFeedsDelay);
+    updateFeeds(view);
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      console.log('submitted');
 
       const formData = new FormData(event.target);
       const url = formData.get('url');
       const feedsLinks = [...view.feeds].map(({ link }) => link);
 
+      console.log(formData);
+
       validateURL(feedsLinks, url)
         .then(({ url: validUrl }) => {
           view.form.error = null;
           view.form.validationState = 'valid';
+          console.log('validated')
           return loadRSS(validUrl, view);
         })
         .catch((e) => {
