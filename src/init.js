@@ -44,15 +44,15 @@ const updateFeeds = (state) => {
 };
 
 const loadRSS = (url, state) => {
-  console.log('loadRss started');
+  // console.log('loadRss started');
   state.requestingProcess.error = null;
   state.requestingProcess.state = 'requesting';
-  console.log('loadRss started 2');
+  // console.log('loadRss started 2');
   // state.form.validationState = 'blocked';
   return axios
     .get(addProxy(url))
     .then((response) => {
-      console.log('axios valid');
+      // console.log('axios valid');
       const feed = parse(response.data.contents);
       const feedId = Number(_.uniqueId());
       const posts = feed.items.map(({ title, link, description }) => ({
@@ -74,7 +74,7 @@ const loadRSS = (url, state) => {
       // state.form.validationState = 'initial';
     })
     .catch((e) => {
-      console.log('axios invalid');
+      // console.log('axios invalid');
       state.requestingProcess.error = e;
       state.requestingProcess.state = 'failed';
       // state.form.validationState = 'invalid';
@@ -129,37 +129,37 @@ export default () => i18next
       },
     };
 
-    const view = render(state, locales, elements);
+    const watchedState = render(state, locales, elements);
 
-    updateFeeds(view);
+    updateFeeds(watchedState);
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
-      console.log('submitted');
+      // console.log('submitted');
 
       const formData = new FormData(event.target);
       const url = formData.get('url');
-      const feedsLinks = [...view.feeds].map(({ link }) => link);
+      const feedsLinks = [...watchedState.feeds].map(({ link }) => link);
 
-      console.log(formData);
+      // console.log(formData);
 
       validateURL(feedsLinks, url)
         .then(({ url: validUrl }) => {
-          view.form.error = null;
-          view.form.validationState = 'valid';
-          console.log('validated')
-          return loadRSS(validUrl, view);
+          watchedState.form.error = null;
+          watchedState.form.validationState = 'valid';
+          // console.log('validated')
+          return loadRSS(validUrl, watchedState);
         })
         .catch((e) => {
-          view.form.validationState = 'invalid';
-          view.form.error = e;
+          watchedState.form.validationState = 'invalid';
+          watchedState.form.error = e;
         });
     });
 
     postsBlock.addEventListener('click', (e) => {
       if (!('id' in e.target.dataset)) return;
       const id = Number(e.target.dataset.id);
-      view.uiState.visitedPosts.add(id);
-      view.uiState.popup.postId = id;
+      watchedState.uiState.visitedPosts.add(id);
+      watchedState.uiState.popup.postId = id;
     });
   });

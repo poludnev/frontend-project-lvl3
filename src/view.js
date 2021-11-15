@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 
-const makeCard = (title) => {
+const createCard = (title) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
 
@@ -16,13 +16,13 @@ const makeCard = (title) => {
   return card;
 };
 
-const makeUl = () => {
+const createUl = () => {
   const ul = document.createElement('ul');
   ul.classList.add('list-group', 'border-0', 'rounded-0');
   return ul;
 };
 
-const makeFeedLi = (title, description) => {
+const createFeedElement = (title, description) => {
   const li = document.createElement('li');
   li.classList.add('list-group-item', 'border-0', 'border-end-0');
   const header = document.createElement('h3');
@@ -37,7 +37,7 @@ const makeFeedLi = (title, description) => {
   return li;
 };
 
-const makePostsLi = (title, link, id, buttonName) => {
+const createPostElement = (title, link, id, buttonName) => {
   const li = document.createElement('li');
   li.classList.add(
     'list-group-item',
@@ -123,15 +123,15 @@ const renderForm = (elements, state) => {
   console.log('render form ran', state);
 
   switch (state) {
-    case 'initial':
-      input.classList.remove('is-invalid');
-      input.disabled = false;
-      input.removeAttribute('readonly');
-      button.disabled = false;
-      button.removeAttribute('readonly');
-      input.value = '';
-      input.focus();
-      return;
+    // case 'initial':
+    //   input.classList.remove('is-invalid');
+    //   input.disabled = false;
+    //   input.removeAttribute('readonly');
+    //   button.disabled = false;
+    //   button.removeAttribute('readonly');
+    //   input.value = '';
+    //   input.focus();
+    //   return;
     case 'requesting':
       // input.classList.remove('is-invalid');
       input.disabled = true;
@@ -165,12 +165,12 @@ const renderFeeds = (elements, feeds, feedsTitle) => {
   if (feeds.length === 0) return;
   const { feedsContainer } = elements;
   feedsContainer.textContent = '';
-  feedsContainer.appendChild(makeCard(feedsTitle));
-  const feedsUl = makeUl();
+  feedsContainer.appendChild(createCard(feedsTitle));
+  const feedsUl = createUl();
   feeds.forEach(({
     title, description, link, id,
   }) => {
-    feedsUl.appendChild(makeFeedLi(title, description, link, id));
+    feedsUl.appendChild(createFeedElement(title, description, link, id));
   });
   feedsContainer.appendChild(feedsUl);
 };
@@ -188,12 +188,12 @@ const renderPosts = (elements, posts, postsTexts, visitedPostsIds) => {
   if (posts.length === 0) return;
   const { postsContainer } = elements;
   postsContainer.textContent = '';
-  postsContainer.appendChild(makeCard(postsTexts.title));
-  const postsUl = makeUl();
+  postsContainer.appendChild(createCard(postsTexts.title));
+  const postsUl = createUl();
   posts
     .sort((a, b) => b.feedId - a.feedIdb)
     .forEach(({ title, link, id }) => {
-      postsUl.appendChild(makePostsLi(title, link, id, postsTexts.previewButton));
+      postsUl.appendChild(createPostElement(title, link, id, postsTexts.previewButton));
     });
   postsContainer.appendChild(postsUl);
   tagVisitedPosts(elements, visitedPostsIds);
@@ -308,15 +308,17 @@ const renderInitialView = (elements, locales) => {
   footerTextContainer.appendChild(hexletLink);
 };
 
-const handleStateChanges = (state, elements, locales) => (path) => {
-  if (!viewHandlers[path]) return;
-  viewHandlers[path](state, elements, locales);
-};
+// const handleStateChanges = (state, elements, locales) => (path) => {
+//   if (!viewHandlers[path]) return;
+//   viewHandlers[path](state, elements, locales);
+// };
 
 const render = (state, locales, elements) => {
   renderInitialView(elements, locales);
 
-  return onChange(state, handleStateChanges(state, elements, locales));
+  return onChange(state, (path) => {
+    if (viewHandlers[path]) viewHandlers[path](state, elements, locales);
+  });
 };
 
 export default render;
