@@ -114,26 +114,15 @@ const renderValidationState = (elements, state) => {
       input.focus();
       return;
     default:
-      console.error(`unknown form state: ${validationState}`);
+      console.error(`unknown form state: ${state}`);
   }
 };
 
 const renderForm = (elements, state) => {
   const { input, button } = elements;
-  console.log('render form ran', state);
 
   switch (state) {
-    // case 'initial':
-    //   input.classList.remove('is-invalid');
-    //   input.disabled = false;
-    //   input.removeAttribute('readonly');
-    //   button.disabled = false;
-    //   button.removeAttribute('readonly');
-    //   input.value = '';
-    //   input.focus();
-    //   return;
     case 'requesting':
-      // input.classList.remove('is-invalid');
       input.disabled = true;
       input.setAttribute('readonly', '');
       button.disabled = true;
@@ -226,13 +215,10 @@ const viewHandlers = {
   },
 
   'requestingProcess.state': (appState, elements, locales) => {
-    console.log('requestingProcess.state run');
     const {
       requestingProcess: { state, error },
     } = appState;
-    console.log(state, error);
     const message = error ? locales(`errors.${error.message}`) : locales(`feedback.${state}`);
-    console.log(state, error, message);
     renderForm(elements, state);
     renderFeedBack(elements, message, state);
   },
@@ -240,11 +226,9 @@ const viewHandlers = {
   feeds: (appState, elements, locales) => {
     const {
       feeds,
-      form: { validationState },
     } = appState;
     const title = locales('feeds.title');
     renderFeeds(elements, feeds, title);
-    // rende`rForm(elements, validationState);
   },
 
   posts: (appState, elements, locales) => {
@@ -308,11 +292,6 @@ const renderInitialView = (elements, locales) => {
   footerTextContainer.appendChild(hexletLink);
 };
 
-// const handleStateChanges = (state, elements, locales) => (path) => {
-//   if (!viewHandlers[path]) return;
-//   viewHandlers[path](state, elements, locales);
-// };
-
 export default (state, locales, elements) => {
   renderInitialView(elements, locales);
 
@@ -320,5 +299,3 @@ export default (state, locales, elements) => {
     if (viewHandlers[path]) viewHandlers[path](state, elements, locales);
   });
 };
-
-// export default render;
