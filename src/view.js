@@ -115,7 +115,7 @@ const renderValidationState = (elements, state) => {
       return;
     default:
       console.error(`unknown form state: ${validationState}`);
-  };
+  }
 };
 
 const renderForm = (elements, state) => {
@@ -313,7 +313,7 @@ const renderInitialView = (elements, locales) => {
 //   viewHandlers[path](state, elements, locales);
 // };
 
-const render = (state, locales, elements) => {
+export default (state, locales, elements) => {
   renderInitialView(elements, locales);
 
   return onChange(state, (path) => {
@@ -321,4 +321,4 @@ const render = (state, locales, elements) => {
   });
 };
 
-export default render;
+// export default render;
