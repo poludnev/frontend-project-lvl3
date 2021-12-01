@@ -1,4 +1,4 @@
-# RSS Agregator
+# RSS Aggregator
 
 ## Start read RSS today! It's easy, it's nice!
 
@@ -16,7 +16,7 @@
 
 ### Example
 
-[RSS Agregator](https://frontend-project-lvl3-smoky.vercel.app/)
+[RSS Aggregator](https://frontend-project-lvl3-smoky.vercel.app/)
 
 ### Setup
 
